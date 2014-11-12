@@ -20,14 +20,16 @@ class GridController:
         self.framebuffer = [f1, f2]
         self.framePtr = 0
         self.calibrationMap = []
-        self.workerList = []
+        self.workerList = {}
 
-    '''generate a list of pixel indices that have changed since last frame '''
-    def generateDiffList(self):
+    '''generate a list of pixel indices that have changed since last frame 
+        returns [ index, value ] for each changed pixel 
+    '''
+    def generateDifferenceList(self):
         ret = []
         for ind in range(self.width * self.height):
-            if self.frameBuffer[framePtr] != self.frameBuffer[1-framePtr]:
-                ret.append(ind)
+            if self.framebuffer[self.framePtr][ind] != self.framebuffer[1-self.framePtr][ind]:
+                ret.append([ind, self.framebuffer[self.framePtr][ind] ])
         return ret
 
     '''load the calibration map from given path
@@ -48,14 +50,16 @@ class GridController:
         #generate the worker threads for each 
         for station in baseStationList:
             w = GridWorker(station)
-            self.workerList.append(w)
+            self.workerList[station] = w
             w.start()
             print "worker for %s started" % (w.stationIP)
+
 
     def stop(self):
         #turn off all the bulbs here
         #stop the threads
-        for w in self.workerList:
+        for k in self.workerList.keys():
+            w = self.workerList[k]
             print "stopping worker for %s" % (w.stationIP)
             w.end()
             w.join()
@@ -65,9 +69,49 @@ class GridController:
     receive new frame data into the currently not displayed buffer
     '''
     def newFrameData(self, data):
-        pass
+        if len(data) != self.width * self.height:
+            print "Error!: new frame size incorrect"
+            return
+        self.framebuffer[1-self.framePtr] = data[:]
+        self.framePtr = 1-self.framePtr
+        self.flip()
+
     '''
     start sending the current buffer to the lights
     '''
     def flip(self):
-        pass
+        print "sending frame %i" % (self.framePtr)
+        #generate a difference list
+        diffList = self.generateDifferenceList()
+        print "difflist %i" % (len(diffList))
+
+        #
+        for pair in diffList:
+            #look up the correct base station id for this bulb
+            pixelIndex, value = pair
+            baseStation, bulbId = self.calibrationMap[pixelIndex]
+            worker = self.workerList[baseStation]
+            worker.addData( [[bulbId, value]] )
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
