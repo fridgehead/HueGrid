@@ -13,7 +13,8 @@ class GridWorker(Thread):
         self.testMode = testMode
         if testMode != True:
             self.bridge = Bridge(stationIP)
-        
+       
+        self.transitionTime = 1
         self.running = True
 
     def end(self):
@@ -30,10 +31,12 @@ class GridWorker(Thread):
             #read from queue
             if self.queue.empty() == False:
                 bulbId, value = self.queue.get(False)
-                print "station %s setting id %s to value %s" %(self.stationIP, bulbId, value)
                 #send to base station
+                command = {'hue' : value[0], 'sat' : value[1], 'bri' : value[2], 'transitionTime' : self.transitionTime} 
                 if self.testMode != True:
-                    b.set_light(bulbId, 'bri', value, transitiontime=1)
+                    b.set_light(bulbId, command)
+                else :
+                    print "command " + str(command)
                 sleep(0.3)                
                 self.queue.task_done()
 

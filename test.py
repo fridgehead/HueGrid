@@ -7,8 +7,8 @@ try:
     i = 0
     while True:
         i += 1
-        data = [0,0,0,0]
-        data[i %4] = 255
+        data = [[0,0,0] for a in range(0,4)]
+        data[i %4][0] = 255
         g.newFrameData(data)
         sleep(2)
 except KeyboardInterrupt:

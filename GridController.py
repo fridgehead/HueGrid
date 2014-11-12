@@ -15,8 +15,8 @@ class GridController:
         print "creating gridcontroller of %ix%i" %(width, height)
         self.width = width
         self.height = height
-        f1 = [0 for a in range(0, width*height)]
-        f2 = [0 for a in range(0, width*height)]
+        f1 = [[0,0,0] for a in range(0, width*height)]
+        f2 = [[0,0,0] for a in range(0, width*height)]
         self.framebuffer = [f1, f2]
         self.framePtr = 0
         self.calibrationMap = []
@@ -39,12 +39,13 @@ class GridController:
         baseStationList = []
         f = open(path, 'r')
         for line in f:
-            parts = line.split(",")
-            station = parts[0]
-            bulbId = int(parts[1])
-            self.calibrationMap.append( [station, bulbId])
-            if station not in baseStationList:
-                baseStationList.append(station)
+            if line[0] != '#':
+                parts = line.split(",")
+                station = parts[0]
+                bulbId = int(parts[1])
+                self.calibrationMap.append( [station, bulbId])
+                if station not in baseStationList:
+                    baseStationList.append(station)
         print "loaded %i pixels from calibmap" % ( len(self.calibrationMap))
         print "generating worker threads.."
         #generate the worker threads for each 
@@ -83,9 +84,6 @@ class GridController:
         print "sending frame %i" % (self.framePtr)
         #generate a difference list
         diffList = self.generateDifferenceList()
-        print "difflist %i" % (len(diffList))
-
-        #
         for pair in diffList:
             #look up the correct base station id for this bulb
             pixelIndex, value = pair
