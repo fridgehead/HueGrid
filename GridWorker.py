@@ -20,6 +20,8 @@ class GridWorker(Thread):
         self.fastMode = False
         self.fastModeReady = False
 
+        self.frameReady = False
+
     def end(self):
         self.running = False
         self.queue.join()
@@ -31,6 +33,9 @@ class GridWorker(Thread):
         for item in dataList:
             self.queue.put(item)
 
+    def frameDone (self):
+        self.frameReady = True
+
     def run(self):
         while self.running:
             #read from queue
@@ -40,6 +45,8 @@ class GridWorker(Thread):
                 self.slowMode()
 
     def doFastMode(self):
+        if self.frameReady == False:
+            return
         #here the value represents a colour index from the shitty pallette
         #read the queue until empty or 16 have been read
         bulbList = []
@@ -55,6 +62,7 @@ class GridWorker(Thread):
             doUpdate = True
             self.queue.task_done()
         if doUpdate == True:
+            print 
             #run over the upates in bulb list and compile them into the weird format it needs
             cmd = [01, 01]
             cmd.append(len(valueList))
@@ -62,9 +70,12 @@ class GridWorker(Thread):
                 cmd.append(valueList[i])
                 cmd.append(bulbList[i])
             cmdString = str(bytearray(cmd)).encode('hex')
-            command = {"duration" : 10000, "symbolselection" : cmdString}
+            command = {"duration" : 60000, "symbolselection" : cmdString}
             self.bridge.request('PUT', '/api/' + self.bridge.username + '/groups/0/transmitsymbol', json.dumps(command))
             sleep(0.05)
+
+        if self.queue.empty():
+            self.frameReady = False
 
 
     def slowMode(self):
@@ -76,7 +87,7 @@ class GridWorker(Thread):
                 self.bridge.set_light(bulbId, command)
             else :
                 print "command " + str(command)
-            sleep(0.09)                
+            sleep(0.12)                
             self.queue.task_done()
     
     def sendPointSymbols(self, lightList):
@@ -93,7 +104,7 @@ class GridWorker(Thread):
             command[str(i+1)] = col[i]
         for i, light in enumerate(lightList):
             self.bridge.request('PUT', '/api/' + self.bridge.username + '/lights/' + str(i+1) + '/pointsymbol', json.dumps(command))
-            sleep(0.14)
+            sleep(0.54)
         print "..upload complete"
         self.fastModeReady = True
       

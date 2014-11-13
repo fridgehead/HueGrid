@@ -103,7 +103,9 @@ class GridController:
             pixelIndex, value = pair
             baseStation, bulbId = self.calibrationMap[pixelIndex]
             worker = self.workerList[baseStation]
-            worker.addData( [[bulbId, value]] )
+            worker.addData( [[bulbId , value]] )
+        for w in self.workerList.keys():
+            self.workerList[w].frameDone()
 
 
 
