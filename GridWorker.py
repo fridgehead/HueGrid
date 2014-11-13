@@ -2,6 +2,7 @@ from threading import Thread
 from Queue import Queue
 from time import sleep
 from phue import Bridge
+import json
 
 
 class GridWorker(Thread):
@@ -16,6 +17,8 @@ class GridWorker(Thread):
        
         self.transitionTime = 1
         self.running = True
+        self.fastMode = False
+        self.fastModeReady = False
 
     def end(self):
         self.running = False
@@ -23,21 +26,75 @@ class GridWorker(Thread):
 
     ''' take list of bulb ids and colour values, add to queue '''
     def addData(self, dataList):
+        if self.fastMode == True and self.fastModeReady == False:
+            return
         for item in dataList:
             self.queue.put(item)
 
     def run(self):
         while self.running:
             #read from queue
-            if self.queue.empty() == False:
-                bulbId, value = self.queue.get(False)
-                #send to base station
-                command = {'hue' : value[0], 'sat' : value[1], 'bri' : value[2], 'transitionTime' : self.transitionTime} 
-                if self.testMode != True:
-                    b.set_light(bulbId, command)
-                else :
-                    print "command " + str(command)
-                sleep(0.3)                
-                self.queue.task_done()
+            if self.fastMode == True:
+                self.doFastMode()
+            else :
+                self.slowMode()
 
+    def doFastMode(self):
+        #here the value represents a colour index from the shitty pallette
+        #read the queue until empty or 16 have been read
+        bulbList = []
+        valueList = []
+        ct = 0
+        doUpdate = False
+        while self.queue.empty() == False and ct < 16:
+            bulbId, value = self.queue.get(False)
+            value = value[0]
+            bulbList.append(bulbId)
+            valueList.append(value)
+            ct += 1
+            doUpdate = True
+            self.queue.task_done()
+        if doUpdate == True:
+            #run over the upates in bulb list and compile them into the weird format it needs
+            cmd = [01, 01]
+            cmd.append(len(valueList))
+            for i in range(0, len(bulbList)):
+                cmd.append(valueList[i])
+                cmd.append(bulbList[i])
+            cmdString = str(bytearray(cmd)).encode('hex')
+            command = {"duration" : 10000, "symbolselection" : cmdString}
+            self.bridge.request('PUT', '/api/' + self.bridge.username + '/groups/0/transmitsymbol', json.dumps(command))
+            sleep(0.05)
+
+
+    def slowMode(self):
+        if self.queue.empty() == False:
+            bulbId, value = self.queue.get(False)
+            #send to base station
+            command = {'hue' : value[0], 'sat' : value[1], 'bri' : value[2], 'transitiontime' : self.transitionTime} 
+            if self.testMode != True:
+                self.bridge.set_light(bulbId, command)
+            else :
+                print "command " + str(command)
+            sleep(0.09)                
+            self.queue.task_done()
+    
+    def sendPointSymbols(self, lightList):
+        col = range(0,7)
+        col[0] = "320000002A10101000ff"
+        col[1] = "320000002A10000000ff"
+        col[2] = "320000002A00100000ff"
+        col[3] = "320000002A00001000ff"
+        col[4] = "320000002A10100000ff"
+        col[5] = "320000002A00101000ff"
+        col[6] = "320000002A10001000ff"
+        command = {}
+        for i in range(0, 7):
+            command[str(i+1)] = col[i]
+        for i, light in enumerate(lightList):
+            self.bridge.request('PUT', '/api/' + self.bridge.username + '/lights/' + str(i+1) + '/pointsymbol', json.dumps(command))
+            sleep(0.14)
+        print "..upload complete"
+        self.fastModeReady = True
+      
 

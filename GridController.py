@@ -11,6 +11,8 @@ double buffered with only diffs being sent to lights
 
 class GridController:
 
+   
+
     def __init__(self, width, height):
         print "creating gridcontroller of %ix%i" %(width, height)
         self.width = width
@@ -20,7 +22,13 @@ class GridController:
         self.framebuffer = [f1, f2]
         self.framePtr = 0
         self.calibrationMap = []
+        self.stationBulbMap = {}
         self.workerList = {}
+        self.fastMode = False
+
+    def setFastMode(self):
+        self.fastMode = True
+        print "Using fast mode updates, uploading patterns now.."
 
     '''generate a list of pixel indices that have changed since last frame 
         returns [ index, value ] for each changed pixel 
@@ -46,12 +54,18 @@ class GridController:
                 self.calibrationMap.append( [station, bulbId])
                 if station not in baseStationList:
                     baseStationList.append(station)
+                    self.stationBulbMap[station] = []
+                self.stationBulbMap[station].append(bulbId)
         print "loaded %i pixels from calibmap" % ( len(self.calibrationMap))
         print "generating worker threads.."
         #generate the worker threads for each 
         for station in baseStationList:
-            w = GridWorker(station)
+            w = GridWorker(station, testMode = False)
             self.workerList[station] = w
+            if self.fastMode == True:
+                print "uploading pointsymbols"
+                w.fastMode = True
+                w.sendPointSymbols(self.stationBulbMap[station])
             w.start()
             print "worker for %s started" % (w.stationIP)
 
