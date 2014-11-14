@@ -37,8 +37,8 @@ class Tetris:
         ]
 
 
-        self.rotCounter = ((0,-1),(1,0))
-        self.rotClock = ((0,1),(-1,0))
+        self.rotClock = ((0,-1),(1,0))
+        self.rotCounter = ((0,1),(-1,0))
         self.rot180 = ((-1,0),(0,-1))
 
         self.rotations = [self.rotCounter,self.rotClock,self.rot180]
@@ -57,7 +57,6 @@ class Tetris:
         self.moveHere(self.currentBlock,(0,-1))
 
         self.state = "PLAYING"
-
 
     def rotate(self, matrix, block):
         ''' rotate the current block returning a new block - non destructive '''
@@ -97,26 +96,30 @@ class Tetris:
      
         return new_block
 
-    # TODO - Restrict state changes if we arent in playing state
+
+    def _move(self,offset):
+        ''' internal checking func '''
+        if self.state == "PLAYING":
+            self.moveIfPoss(self.currentBlock,offset)
+
     def goLeft(self):
-        if self.canMoveHere(self.currentBlock, (-1,0)):
-            self.moveHere(self.currentBlock, (-1,0))
+        self._move((-1,0))
 
     def goRight(self):
-        if self.canMoveHere(self.currentBlock, (1,0)):
-            self.moveHere(self.currentBlock, (1,0))
-
+       self._move((1,0))
+  
     def goDown(self):
-        if self.canMoveHere(self.currentBlock, (0,-1)):
-            self.moveHere(self.currentBlock, (0,-1))
+       self._move((0,-1))
 
     def goRotate(self):
-        tblock = self.rotate(self.rotClock, self.currentBlock)
-        if self.canMoveHere(tblock, (0,0)):
-            # garbage collect
-            self.clearBlock(self.currentBlock)
-            self.currentBlock = tblock
-            self.moveHere(self.currentBlock, (0,0))
+        ''' Rotate a block - somewhat more involved '''
+        if self.state == "PLAYING":
+            tblock = self.rotate(self.rotClock, self.currentBlock)
+            if self.canMoveHere(tblock, (0,0)):
+                # garbage collect
+                self.clearBlock(self.currentBlock)
+                self.currentBlock = tblock
+                self.moveHere(self.currentBlock, (0,0))
 
 
     def canMoveHere(self, block, offset):
@@ -141,6 +144,13 @@ class Tetris:
                     return False
 
         return True
+
+    def moveIfPoss(self,block,offset):
+        ''' convinience function '''
+        if self.canMoveHere(block,offset):
+            self.moveHere(block,offset)
+            return True
+        return False
 
     def clearBlock(self,block):
         ''' clear a block from the buffer '''
@@ -235,6 +245,7 @@ class App:
         self.tetris = tetris
         self.block_size = 20
         self.size = self.weight, self.height = self.tetris.boardX * self.block_size, self.tetris.boardY * self.block_size
+        self.palette = { "I" : (0,255,255), "Z" : (255,0,0), "S": (0,255,0), "O" : (200,200,200), "T" : (255,0,255), "L": (255,0,255), "J" : (0,0,255)}
         
 
     def on_init(self):
@@ -280,7 +291,7 @@ class App:
             for j in range(0,self.tetris.boardX):
                 if self.tetris.buffer[i][j] != 0:
                     rect = (j * self.block_size,  (self.tetris.boardY - i - 1) * self.block_size, self.block_size, self.block_size)
-                    pygame.draw.rect(self._display_surf, (255,255,255), rect )
+                    pygame.draw.rect(self._display_surf, self.palette[self.tetris.buffer[i][j]], rect )
 
         pygame.display.update()
 
