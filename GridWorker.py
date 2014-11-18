@@ -103,7 +103,8 @@ class GridWorker(Thread):
         for i in range(0, 7):
             command[str(i+1)] = col[i]
         for i, light in enumerate(lightList):
-            self.bridge.request('PUT', '/api/' + self.bridge.username + '/lights/' + str(i+1) + '/pointsymbol', json.dumps(command))
+            if self.testMode == False:
+                self.bridge.request('PUT', '/api/' + self.bridge.username + '/lights/' + str(i+1) + '/pointsymbol', json.dumps(command))
             sleep(0.54)
         print "..upload complete"
         self.fastModeReady = True

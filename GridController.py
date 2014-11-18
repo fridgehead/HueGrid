@@ -13,7 +13,7 @@ class GridController:
 
    
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, testmode = False):
         print "creating gridcontroller of %ix%i" %(width, height)
         self.width = width
         self.height = height
@@ -25,6 +25,7 @@ class GridController:
         self.stationBulbMap = {}
         self.workerList = {}
         self.fastMode = False
+        self.testmode = testmode
 
     def setFastMode(self):
         self.fastMode = True
@@ -60,7 +61,7 @@ class GridController:
         print "generating worker threads.."
         #generate the worker threads for each 
         for station in baseStationList:
-            w = GridWorker(station, testMode = False)
+            w = GridWorker(station, testMode = self.testmode)
             self.workerList[station] = w
             if self.fastMode == True:
                 print "uploading pointsymbols"
