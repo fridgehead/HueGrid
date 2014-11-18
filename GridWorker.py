@@ -61,7 +61,7 @@ class GridWorker(Thread):
             ct += 1
             doUpdate = True
             self.queue.task_done()
-        if doUpdate == True:
+	if doUpdate == True and self.testMode == False:
             print 
             #run over the upates in bulb list and compile them into the weird format it needs
             cmd = [01, 01]
@@ -69,7 +69,7 @@ class GridWorker(Thread):
             for i in range(0, len(bulbList)):
                 cmd.append(valueList[i])
                 cmd.append(bulbList[i])
-            cmdString = str(bytearray(cmd)).encode('hex')
+	    cmdString = str(bytearray(cmd)).encode('hex')
             command = {"duration" : 60000, "symbolselection" : cmdString}
             self.bridge.request('PUT', '/api/' + self.bridge.username + '/groups/0/transmitsymbol', json.dumps(command))
             sleep(0.05)
