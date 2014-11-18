@@ -1,7 +1,7 @@
 from threading import Thread
 from Queue import Queue
 from time import sleep
-from phue import Bridge
+#from phue import Bridge
 import json
 
 
