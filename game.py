@@ -62,7 +62,7 @@ if __name__ == "__main__" :
   print ('Press Ctrl+C to exit')
 
   parser = argparse.ArgumentParser(description='Process some integers.')
-  parser.add_argument('--fps', metavar='N', type=int, help='overall framerate')
+  parser.add_argument('--fps', metavar='N', type=float, help='overall framerate')
   parser.add_argument('--pygame', help='launch a pygame window', action='store_true')
 
   argz = vars(parser.parse_args())
