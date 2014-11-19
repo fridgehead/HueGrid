@@ -52,10 +52,8 @@ if __name__ == "__main__" :
 
   import signal
 
-
   def signal_handler(sig, frame):
-    print()
-    print('You pressed Ctrl+C - Exiting Tetris')
+    print("")
     game.quit()
     sys.exit(0)
 
@@ -72,6 +70,9 @@ if __name__ == "__main__" :
   tetris = tetris.Tetris();
 
   fps = 1
+
+  if argz["fps"]:
+    fps = argz["fps"]
 
   if argz["pygame"]:
 
