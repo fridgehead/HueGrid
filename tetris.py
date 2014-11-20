@@ -8,22 +8,15 @@ email : oni@section9.co.uk
 
 
 import random, copy
+from buffergame import BufferGame
 
  
-class Tetris:
+class Tetris(BufferGame):
     ''' Basic game logic for tetris '''
 
-    def __init__(self):
-        self.boardX = 13 # Minimum 4
-        self.boardY = 14
-        self.buffer = []
-
-        for i in range(0,self.boardY):
-            row = []   
-            for j in range(0,self.boardX):
-                row.append( 0 )
-
-            self.buffer.append(row)
+    def __init__(self, boardX = 13, boardY = 14):
+    
+        super(Tetris,self).__init__(boardX,boardY) 
 
         self.blocks = [
             { 'bits' : [[-1,0],[ 0,0],[1,0],[2,0]], 'type' : 'I' , 'pos' : [0,0] },    # Long piece
@@ -207,7 +200,6 @@ class Tetris:
     def tick(self):
         ''' update the state of the game by one tick'''
 
-        self.check_lines()
         
         if self.canMoveHere(self.currentBlock, (0,-1)):
             self.moveHere(self.currentBlock,(0,-1))
@@ -221,32 +213,23 @@ class Tetris:
                 # garbage collect
                 self.moveHere(self.currentBlock,(0,-1))
 
-    def game_over(self):
+    def game_over(self,dt):
         ''' Game over animation '''
         pass
 
 
-    def frame(self):
-        ''' Runs as fast as possible really. Not limited in anyway '''
-
+    def frame(self,dt):
+        ''' We've had another frame. What should we do next '''
 
         if self.state == "GAME_OVER":
-            pass
+            game_over(dt)
         
         elif self.state == "PLAYING":
+            self.check_lines()
             self.tick()
 
         elif self.state == "READY":
             self.start()
-
-
-    def prettyPrint(self):
-        ''' rprint the buffer out nicely '''
-        for i in reversed(range(0,self.boardY)):
-            for j in range(0,self.boardX):
-                print(str(self.buffer[i][j])),
-            print("")
-        print("")
 
 
  
