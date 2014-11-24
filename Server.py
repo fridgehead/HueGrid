@@ -47,10 +47,8 @@ class GridServer:
         received_buffer, addr = self.sock.recvfrom(1024)
         received_buffer = received_buffer.strip()
         
-        print("new frame")
-        
         if len(received_buffer) != self.bufferY * self.bufferX:
-          print("WRONG SIZE")
+          print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
         else:
 
           # Our serial buffer is actually 30 x 30 x 3

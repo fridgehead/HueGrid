@@ -26,6 +26,14 @@ class BufferGame(object):
   def frame(self,dt):
     pass
 
+  def getLinearBuffer(self):
+    data = []
+    for i in range(0,self.boardY): 
+      for j in range(0,self.boardX):
+        data.append( 0 )
+    
+    return data
+
   def prettyPrint(self):
       ''' rprint the buffer out nicely '''
       for i in reversed(range(0,self.boardY)):

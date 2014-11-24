@@ -7,11 +7,10 @@ email : oni@section9.co.uk
 
 import tetris, argparse, time, sys, socket
 
-# TODO - We need to be careful with the controls - the player cant really exceed the fps
-# so we may have to actually queue events and potentially dispose of them :S More testing needed
-# I suspect.
-
 class Game:
+
+  ''' A game class that controls the timing and viewing of the game state
+  This class also communicates with the server side '''
 
   def __init__(self, game, fps=2, local=True, server_address="192.168.1.1", port=9001, pygame=False):
     self.fps = fps;
@@ -20,28 +19,36 @@ class Game:
     self.pygame = pygame
     self.server_address = server_address
     self.port = port
+    self.local = local
 
     self.buffer_palette = {'I' : 1, 'J' : 2, 'L' : 3, 'O' : 4, 'Z' : 5, 'S' : 6 , 'T' : 7 }
-
+    
     if self.pygame:
       self.pygame.init()
 
     if not local:
-      self.connectToServer()  
+      self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-  def connectToServer(self):
-    ''' connect to server via udp '''
+
+  def bufferToServer(self):
+    ''' send the game buffer to the server via udp.
+    We prepare the buffer by converting down into numnbers 0-8.'''
 
     try:
+      send_buffer = [] 
 
-      print("LocalName: " + socket.gethostname())
-      print("Connecting To: " + self.server_address + " on " + repr(self.port) )
-    
-      socket.create_connection((self.server_address,self.port))
+      for item in self.game.getLinearBuffer():
+        if item in self.buffer_palette.keys():
+          send_buffer.append(self.buffer_palette[item])
+        else:
+          send_buffer.append(0)
+
+      msg = ''.join(chr(x) for x in send_buffer)
+      self.socket.sendto(msg, (self.server_address, self.port))
 
     except:
       import traceback
-      print("Error connecting to server.")
+      print("Error connecting to server: " + self.server_address + ":" + str(self.port))
       print(traceback.print_exc())
 
   def sendBuffer(self):
@@ -72,14 +79,16 @@ class Game:
         #self.game.prettyPrint()
         start_time = now
 
+      if not self.local:
+        self.bufferToServer()
+
   def quit(self):
     print("Quitting...")
     if self.pygame:
       self.pygame.cleanup()
-      self.running = False
-      sys.exit()
-
-
+    
+    self.running = False
+    sys.exit()
 
 
 if __name__ == "__main__" : 
