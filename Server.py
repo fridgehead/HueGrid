@@ -70,7 +70,7 @@ class GridServer:
 
         #print("received frame")
         
-      if received_buffer && len(received_buffer) == recv_buffer_size:
+      if received_buffer and len(received_buffer) == recv_buffer_size:
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
         
