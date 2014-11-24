@@ -85,7 +85,7 @@ class GridServer:
                 self.led_data[idx*3 + 2] = g
                 idx += 1
 
-        # Check against rate limit
+        # Check against rate limit - dont overload
         now = time.time()
         dt = now - self.start_time 
         if dt >= self.rate:
