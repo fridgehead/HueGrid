@@ -26,8 +26,8 @@ class GridServer:
 
     try:
 
-      ser = serial_comms.connect()
-      
+      self.ser = serial_comms.connect()
+
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
       
       try:
@@ -76,9 +76,9 @@ class GridServer:
               for j in range(0,30):
                 led_data = led_data + [0,0,0] # could be slow :S
 
-          serial_comms.set_image(led_data,ser)
+          serial_comms.set_image(led_data,self.ser)
        
-      ser.close()
+      self.ser.close()
 
       self.sock.close()
 
@@ -87,7 +87,9 @@ class GridServer:
       print ("Error occured: " + str(sys.exc_info()[0]))
       print (traceback.print_exc())
 
-  
+  def quit(self):
+    self.ser.close()
+    self.sock.close()
 
   def run(self):
     ''' Run round the sever, listening for udp packets and sending
@@ -131,6 +133,13 @@ class GridServer:
 
 if __name__ == "__main__":
 
+  import signal
+
+  def signal_handler(sig, frame):
+    print("Quitting Server.")
+    server.quit()
+    sys.exit(0)
+
   parser = argparse.ArgumentParser(description='Process some integers.')
   parser.add_argument('--width', metavar='N', type=int, help='buffer width.')
   parser.add_argument('--height', metavar='N', type=int, help='buffer height.')
@@ -138,7 +147,6 @@ if __name__ == "__main__":
   parser.add_argument('--port', metavar='N', type=int, help='port to listen on.')
 
   argz = vars(parser.parse_args())
-
 
   width = height = 2
   addr = "127.0.0.1"
