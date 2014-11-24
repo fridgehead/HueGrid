@@ -27,7 +27,7 @@ class GridServer:
 
     self.ser = serial_comms.connect()
 
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.sock.setblocking(0)
     
     try:
