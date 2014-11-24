@@ -100,5 +100,5 @@ if __name__ == "__main__":
 
   ser = connect()
   image_test()
-  test_func()
+  test_func(ser)
   ser.close() 
