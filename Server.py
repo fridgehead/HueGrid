@@ -27,6 +27,7 @@ class GridServer:
 
     self.ser = serial_comms.connect()
 
+    self.blink = True
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
@@ -82,16 +83,17 @@ class GridServer:
         ridx = 0
    
         for i in reversed(range(0,30)):
+          iw = i * 30
+
           if i < self.bufferY:
             for j in range(0,30):
               if j < self.bufferX:
-                (r,g,b) = palette[int(received_buffer[ridx])]
-                iw = i * 30
+                (r,g,b) = palette[int(received_buffer[ridx])]      
                 self.led_data[iw + idx ] = b
                 self.led_data[iw + idx + 1] = r
                 self.led_data[iw + idx + 2] = g
               
-                ridx+=1
+                ridx += 1
               idx += 3
             idx = 0
     
@@ -101,7 +103,16 @@ class GridServer:
       if dt >= self.rate:
         self.start_time = now # Be careful where you put this
         #print("Setting Screen")
+        idx = 30 * 30 * 3
+        if self.blink:
+          self.led_data[idx] = 255
+        
+        self.blink = not self.bink
+
+
         serial_comms.set_image(self.led_data,self.ser)
+
+
         
      
     self.ser.close()
