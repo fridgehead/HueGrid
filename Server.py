@@ -106,7 +106,7 @@ class GridServer:
         if self.blink:
           self.led_data[led_buffer_size-1] = 255
         
-        self.blink = not self.bink
+        self.blink = not self.blink
 
 
         serial_comms.set_image(self.led_data,self.ser)
