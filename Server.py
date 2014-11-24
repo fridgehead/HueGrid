@@ -88,14 +88,14 @@ class GridServer:
               if j < self.bufferX:
                 (r,g,b) = palette[int(received_buffer[ridx])]
 
-                self.led_data[cidx * 30 + idx] = b
-                self.led_data[cidx * 30 + idx + 1] = r
-                self.led_data[cidx * 30 + idx + 2] = g
+                self.led_data[cidx * 30 + idx * 3] = b
+                self.led_data[cidx * 30 + idx * 3 + 1] = r
+                self.led_data[cidx * 30 + idx * 3 + 2] = g
               
                 ridx+=1
               idx += 1
             idx = 0
-            cidx = cidx - 1
+          cidx = cidx - 1
     
 
       # Check against rate limit - dont overload
