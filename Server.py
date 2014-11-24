@@ -81,7 +81,7 @@ class GridServer:
         idx = 0
         ridx = 0
    
-        for i in range(0,30)):
+        for i in range(0,30):
           if i > 30 - self.bufferY:
             for j in range(0,30):
               if j < self.bufferX:
