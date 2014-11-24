@@ -61,6 +61,8 @@ class GridServer:
       recv_buffer_size = self.bufferY * self.bufferX
       received_buffer, addr = self.sock.recvfrom(recv_buffer_size)
       received_buffer = received_buffer.strip()
+
+      print("Frame")
       
       if len(received_buffer) != recv_buffer_size:
         print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
@@ -93,7 +95,6 @@ class GridServer:
       now = time.time()
       dt = now - self.start_time 
       if dt >= self.rate:
-        print("Setting Screen")
         serial_comms.set_image(self.led_data,self.ser)
         self.start_time = time.time()
      

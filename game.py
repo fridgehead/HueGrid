@@ -47,7 +47,7 @@ class Game:
     try:
       self.socket.sendto(msg, (self.server_address, self.port))
       # TODO - dont break on all exceptions! Its a bit naff
-      print("T")
+    
     except:
       import traceback
       print("Error connecting to server: " + self.server_address + ":" + str(self.port))
