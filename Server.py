@@ -61,7 +61,7 @@ class GridServer:
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
 
-        print("F").
+        print("F"),
 
         idx = 0
         led_data = []
