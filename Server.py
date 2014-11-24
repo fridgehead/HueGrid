@@ -28,6 +28,7 @@ class GridServer:
     self.ser = serial_comms.connect()
 
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.socket.setblocking(0)
     
     try:
       self.sock.bind((self.ipaddr, self.port))
@@ -95,6 +96,7 @@ class GridServer:
       now = time.time()
       dt = now - self.start_time 
       if dt >= self.rate:
+        print("Setting Screen")
         serial_comms.set_image(self.led_data,self.ser)
         self.start_time = time.time()
      
