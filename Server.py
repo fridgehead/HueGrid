@@ -39,9 +39,9 @@ class GridServer:
       self.sock.setblocking(0)
 
 
-    # Create our LED Buffer
+    # Create our LED Buffer - 30 * 30 RGB LEDs
     self.led_data = []
-    for i in range(0,self.bufferY * self.bufferX * 3):
+    for i in range(0, 30 * 30 * 3):
       self.led_data.append(0)
     
     self.running = True
