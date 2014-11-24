@@ -62,7 +62,7 @@ class GridServer:
       received_buffer = received_buffer.strip()
       
 
-      if len(received_buffer) -= self.bufferY * self.bufferX:
+      if len(received_buffer) != self.bufferY * self.bufferX:
         print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
         continue # Perhaps not the best option
 
