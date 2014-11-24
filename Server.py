@@ -150,12 +150,14 @@ if __name__ == "__main__":
   parser.add_argument('--height', metavar='N', type=int, help='buffer height.')
   parser.add_argument('--addr', metavar='ip address', help='ip address to bind to.')
   parser.add_argument('--port', metavar='N', type=int, help='port to listen on.')
+  parser.add_argument('--rate', metavar='N', type=float, help='refresh rate in seconds.')
 
   argz = vars(parser.parse_args())
 
   width = height = 2
   addr = "127.0.0.1"
   port = 9001
+  rate = 2.0
 
   if argz["width"]:
     width = argz["width"]
@@ -169,7 +171,10 @@ if __name__ == "__main__":
   if argz["port"]:
     port = argz["port"] 
 
+  if argz["rate"]:
+    rate = argz["rate"]
 
-  server = GridServer(addr, port, width, height)
+
+  server = GridServer(addr, port, width, height,rate)
   server.run_led()
 

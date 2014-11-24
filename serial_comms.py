@@ -98,17 +98,7 @@ def image_test():
 
 if __name__ == "__main__":
 
-
   ser = connect()
-
-  #clear_screen()
-  if sys.argv[1] == "clear":
-    clear_screen(ser)
-  elif sys.argv[1] == "seq":
-    for i in range(2,len(sys.argv)):
-      sample_image(sys.argv[i],ser)
-  else:
-    sample_image(sys.argv[1],ser)
-  #image_test()
-  #test_func()
+  image_test()
+  test_func()
   ser.close() 
