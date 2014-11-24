@@ -61,7 +61,7 @@ class GridServer:
 
       # TODO - Should we wait for data or be changing the screen
       # at a regular rate? I think the latter
-      
+      received_buffer = []
       try:
         received_buffer = self.sock.recv(512) # We assume that bufferx * buffery is less than this number
       except socket.error:
@@ -70,12 +70,7 @@ class GridServer:
 
         #print("received frame")
         
-      if received_buffer:
-
-        if len(received_buffer) != recv_buffer_size:
-          print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
-          continue # Perhaps not the best option
-
+      if received_buffer && len(received_buffer) == recv_buffer_size:
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
         
