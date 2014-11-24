@@ -55,6 +55,7 @@ class GridServer:
     print ("Running server at: " + self.ipaddr + " on port: " + str(self.port) )
 
     self.start_time = time.time()
+    recv_buffer_size = self.bufferY * self.bufferX
 
     while self.running:
 
@@ -62,12 +63,15 @@ class GridServer:
       # at a regular rate? I think the latter
       
       try:
-        recv_buffer_size = self.bufferY * self.bufferX
         received_buffer = self.sock.recv(512) # We assume that bufferx * buffery is less than this number
-        received_buffer = received_buffer.strip()
+      except socket.error:
+        # Likely there was no data as we are non blocking
+        pass  
 
         #print("received frame")
         
+      if received_buffer:
+
         if len(received_buffer) != recv_buffer_size:
           print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
           continue # Perhaps not the best option
@@ -94,9 +98,7 @@ class GridServer:
               
                 ridx+=1
               idx += 1
-      except socket.error:
-        # Likely there was no data as we are non blocking
-        pass
+    
 
       # Check against rate limit - dont overload
       now = time.time()
