@@ -101,7 +101,7 @@ class GridServer:
         print("new frame")
         
         if len(buffer) != self.bufferY * self.bufferX:
-          print "WRONG SIZE"
+          print("WRONG SIZE")
         else:
     		# convert each element of buffer into 0-8 vals
     		# fastmode ignores sat and val elements 
@@ -109,7 +109,7 @@ class GridServer:
     		self._g.newFrameData(data)
 
     except: 
-      print "Error occured. Stopping"
+      print("Error occured. Stopping.")
       self._g.stop()
 
   def stop():
