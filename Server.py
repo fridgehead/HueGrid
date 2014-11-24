@@ -38,10 +38,11 @@ class GridServer:
       raise
       self.sock.setblocking(0)
 
+    led_buffer_size = 30 * 30 * 3
 
     # Create our LED Buffer - 30 * 30 RGB LEDs
     self.led_data = []
-    for i in range(0, 30 * 30 * 3):
+    for i in range(0, led_buffer_size):
       self.led_data.append(0)
     
     self.running = True
@@ -57,20 +58,19 @@ class GridServer:
 
       # TODO - Should we wait for data or be changing the screen
       # at a regular rate? I think the latter
-
-      received_buffer, addr = self.sock.recvfrom(self.bufferY * self.bufferX)
+      recv_buffer_size = self.bufferY * self.bufferX
+      received_buffer, addr = self.sock.recvfrom(recv_buffer_size)
       received_buffer = received_buffer.strip()
       
-
-      if len(received_buffer) != self.bufferY * self.bufferX:
+      if len(received_buffer) != recv_buffer_size:
         print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
         continue # Perhaps not the best option
 
       # Our serial buffer is actually 30 x 30 x 3
       # We need to pad it out
+      
       # Clear Data buffer
-
-      for i in range(0, 30 * 30 * 3):
+      for i in range(0, led_buffer_size):
         self.led_data[i] = 0
 
       idx = 0
