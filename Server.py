@@ -61,6 +61,8 @@ class GridServer:
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
 
+        print(received_buffer)
+        print("-----")
         idx = 0
         led_data = []
 
@@ -69,7 +71,6 @@ class GridServer:
             for j in range(0,30):
               if j < self.bufferX:
                 (r,g,b) = palette[int(received_buffer[idx])]
-                print(r,g,b,int(received_buffer[idx]))
                 idx += 1
                 led_data = led_data + [b,r,g]
               else:
