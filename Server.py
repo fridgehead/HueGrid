@@ -143,7 +143,7 @@ if __name__ == "__main__":
     width = argz["width"]
 
   if argz["height"]:
-    width = argz["height"] 
+    height = argz["height"] 
 
   if argz["addr"]:
     addr = argz["addr"]
