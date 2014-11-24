@@ -70,14 +70,14 @@ class GridServer:
         pass  
 
         #print("received frame")
-        
+      # Clear Data buffer
+      for i in range(0, led_buffer_size):
+        self.led_data[i] = 0
+
       if received_buffer and len(received_buffer) == recv_buffer_size:
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
-        
-        # Clear Data buffer
-        for i in range(0, led_buffer_size):
-          self.led_data[i] = 0
+      
 
         idx = 0
         ridx = 0
@@ -105,13 +105,11 @@ class GridServer:
         #print("Setting Screen")
         if self.blink:
           self.led_data[led_buffer_size-1] = 255
-        
-        self.blink = not self.blink
-
+          self.blink = False
+        else:
+          self.blink = True
 
         serial_comms.set_image(self.led_data,self.ser)
-
-
         
      
     self.ser.close()
