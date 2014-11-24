@@ -69,7 +69,7 @@ class GridServer:
         #print("Frame")
 
         # Clear Data buffer
-        for i in range(0,self.bufferY * self.bufferX * 3):
+        for i in range(0, 30 * 30 * 3):
           self.led_data[i] = 0
 
         idx = 0
@@ -179,6 +179,6 @@ if __name__ == "__main__":
     rate = argz["rate"]
 
 
-  server = GridServer(addr, port, width, height,rate)
+  server = GridServer(addr, port, width, height, rate)
   server.run_led()
 
