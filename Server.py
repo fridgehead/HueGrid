@@ -27,11 +27,10 @@ class GridServer:
 
     self.ser = serial_comms.connect()
 
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
       self.sock.bind((self.ipaddr, self.port))
-      self.sock.listen(1)
       # TODO - pick the right exception
     except:
       print("Failure to bind.")
