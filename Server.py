@@ -5,18 +5,19 @@ email : tom@imakethin.gs / oni@section9.co.uk
 
 """
 
-import socket, argparse, sys
+import socket, argparse, sys, time
 
 
 class GridServer:
 
-  def __init__(self, ipaddr="localhost", port=9001, bufferx=2, buffery=2):
+  def __init__(self, ipaddr="localhost", port=9001, bufferx=2, buffery=2, rate=2.0):
 
     self.bufferX = bufferx
     self.bufferY = buffery
 
     self.ipaddr = ipaddr
     self.port = port
+    self.rate = rate # in seconds for updates
     
 
   def run_led(self):
@@ -24,68 +25,67 @@ class GridServer:
     run() functon but does a few more checks here and calls our serialcoms '''
     import serial_comms
 
+    self.ser = serial_comms.connect()
+
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    
     try:
-
-      self.ser = serial_comms.connect()
-
-      self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-      
-      try:
-        self.sock.bind((self.ipaddr, self.port))
-      except:
-        print("Failure to bind.")
-        self.sock.close()
-        raise
-        self.sock.setblocking(0)
-
-      
-      self.running = True
-
-      palette = { 0: (0,0,0), 1: (255,0,0), 2 : (255,255,0), 3:(255,0,255), 
-        4: (0,255,0), 5:(0,255,255), 6:(0,0,255), 7:(255,255,255) }
-
-      print ("Running server at: " + self.ipaddr + " on port: " + str(self.port) )
-
-      while self.running:
-        received_buffer, addr = self.sock.recvfrom(1024)
-        received_buffer = received_buffer.strip()
-        
-        print("Frame receieved.")
-
-        if len(received_buffer) != self.bufferY * self.bufferX:
-          print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
-        else:
-
-          # Our serial buffer is actually 30 x 30 x 3
-          # We need to pad it out
-
-          idx = 0
-          led_data = []
-
-          for i in range(0,30):
-            if i < self.bufferY:
-              for j in range(0,30):
-                if j < self.bufferX:
-                  (r,g,b) = palette[received_buffer[idx]]
-                  idx += 1
-                  led_data = led_data + [b,r,g]
-                else:
-                  led_data = led_data + [0,0,0]
-
-            else:
-              for j in range(0,30):
-                led_data = led_data + [0,0,0] # could be slow :S
-
-          serial_comms.set_image(led_data,self.ser)
-       
-      self.ser.close()
-
+      self.sock.bind((self.ipaddr, self.port))
+      # TODO - pick the right exception
+    except:
+      print("Failure to bind.")
       self.sock.close()
+      raise
+      self.sock.setblocking(0)
 
-    except: 
-      import traceback
-      print ("Error occured: " + str(sys.exc_info()[0]))
-      print (traceback.print_exc())
+    
+    self.running = True
+
+    palette = { 0: (0,0,0), 1: (255,0,0), 2 : (255,255,0), 3:(255,0,255), 
+      4: (0,255,0), 5:(0,255,255), 6:(0,0,255), 7:(255,255,255) }
+
+    print ("Running server at: " + self.ipaddr + " on port: " + str(self.port) )
+
+    self.start_time = time.time()
+
+    while self.running:
+      received_buffer, addr = self.sock.recvfrom(1024)
+      received_buffer = received_buffer.strip()
+      
+      print("Frame receieved.")
+
+      if len(received_buffer) != self.bufferY * self.bufferX:
+        print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
+      else:
+
+        # Our serial buffer is actually 30 x 30 x 3
+        # We need to pad it out
+
+        idx = 0
+        led_data = []
+
+        for i in range(0,30):
+          if i < self.bufferY:
+            for j in range(0,30):
+              if j < self.bufferX:
+                (r,g,b) = palette[received_buffer[idx]]
+                idx += 1
+                led_data = led_data + [b,r,g]
+              else:
+                led_data = led_data + [0,0,0]
+
+          else:
+            for j in range(0,30):
+              led_data = led_data + [0,0,0] # could be slow :S
+
+        # Check against rate limit
+        now = time.time()
+        dt = now - self.start_time 
+        if dt >= self.rate:
+          serial_comms.set_image(led_data,self.ser)
+     
+    self.ser.close()
+    self.sock.close()
 
   def quit(self):
     self.ser.close()

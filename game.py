@@ -34,18 +34,20 @@ class Game:
     ''' send the game buffer to the server via udp.
     We prepare the buffer by converting down into numnbers 0-8.'''
 
+
+    send_buffer = [] 
+
+    for item in self.game.getLinearBuffer():
+      if item in self.buffer_palette.keys():
+        send_buffer.append(self.buffer_palette[item])
+      else:
+        send_buffer.append(0)
+
+    msg = ''.join(chr(x) for x in send_buffer)
+
     try:
-      send_buffer = [] 
-
-      for item in self.game.getLinearBuffer():
-        if item in self.buffer_palette.keys():
-          send_buffer.append(self.buffer_palette[item])
-        else:
-          send_buffer.append(0)
-
-      msg = ''.join(chr(x) for x in send_buffer)
       self.socket.sendto(msg, (self.server_address, self.port))
-
+      # TODO - dont break on all exceptions! Its a bit naff
     except:
       import traceback
       print("Error connecting to server: " + self.server_address + ":" + str(self.port))
