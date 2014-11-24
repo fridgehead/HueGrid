@@ -32,6 +32,7 @@ class GridServer:
     
     try:
       self.sock.bind((self.ipaddr, self.port))
+      self.sock.listen(5)
       # TODO - pick the right exception
     except:
       print("Failure to bind.")
