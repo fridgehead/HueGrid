@@ -102,7 +102,7 @@ class GridServer:
       dt = now - self.start_time 
       if dt >= self.rate:
         self.start_time = now # Be careful where you put this
-        #print("Setting Screen")
+        print("Setting Screen")
         if self.blink:
           self.led_data[led_buffer_size-1] = 255
           self.blink = False
