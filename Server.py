@@ -28,7 +28,7 @@ class GridServer:
     self.ser = serial_comms.connect()
 
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    
+
     try:
       self.sock.bind((self.ipaddr, self.port))
       # TODO - pick the right exception
@@ -37,6 +37,8 @@ class GridServer:
       self.sock.close()
       raise
       self.sock.setblocking(0)
+
+    self.sock.setblocking(0)
 
     led_buffer_size = 30 * 30 * 3
 
@@ -58,44 +60,49 @@ class GridServer:
 
       # TODO - Should we wait for data or be changing the screen
       # at a regular rate? I think the latter
-      recv_buffer_size = self.bufferY * self.bufferX
-      received_buffer, addr = self.sock.recvfrom(recv_buffer_size)
-      received_buffer = received_buffer.strip()
-
-      print("received frame")
       
-      if len(received_buffer) != recv_buffer_size:
-        print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
-        continue # Perhaps not the best option
+      try:
+        recv_buffer_size = self.bufferY * self.bufferX
+        received_buffer, addr = self.sock.recv(512) # We assume that bufferx * buffery is less than this number
+        received_buffer = received_buffer.strip()
 
-      # Our serial buffer is actually 30 x 30 x 3
-      # We need to pad it out
-      
-      # Clear Data buffer
-      for i in range(0, led_buffer_size):
-        self.led_data[i] = 0
+        print("received frame")
+        
+        if len(received_buffer) != recv_buffer_size:
+          print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
+          continue # Perhaps not the best option
 
-      idx = 0
-      ridx = 0
- 
-      for i in reversed(range(0,30)):
-        if i < self.bufferY:
-          for j in range(0,30):
-            if j < self.bufferX:
-              (r,g,b) = palette[int(received_buffer[ridx])]
+        # Our serial buffer is actually 30 x 30 x 3
+        # We need to pad it out
+        
+        # Clear Data buffer
+        for i in range(0, led_buffer_size):
+          self.led_data[i] = 0
 
-              self.led_data[idx*3] = b
-              self.led_data[idx*3 + 1] = r
-              self.led_data[idx*3 + 2] = g
-            
-              ridx+=1
-            idx += 1
+        idx = 0
+        ridx = 0
+   
+        for i in reversed(range(0,30)):
+          if i < self.bufferY:
+            for j in range(0,30):
+              if j < self.bufferX:
+                (r,g,b) = palette[int(received_buffer[ridx])]
+
+                self.led_data[idx*3] = b
+                self.led_data[idx*3 + 1] = r
+                self.led_data[idx*3 + 2] = g
+              
+                ridx+=1
+              idx += 1
+      except socket.error:
+        # Likely there was no data as we are non blocking
+        pass
 
       # Check against rate limit - dont overload
       now = time.time()
       dt = now - self.start_time 
       if dt >= self.rate:
-        self.start_time = time.time()
+        self.start_time = now # Be careful where you put this
         print("Setting Screen")
         serial_comms.set_image(self.led_data,self.ser)
         
