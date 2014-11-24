@@ -52,7 +52,7 @@ class GridServer:
       received_buffer, addr = self.sock.recvfrom(1024)
       received_buffer = received_buffer.strip()
       
-      print("Frame receieved.")
+      #print("Frame receieved.")
 
       if len(received_buffer) != self.bufferY * self.bufferX:
         print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
@@ -68,11 +68,13 @@ class GridServer:
           if i < self.bufferY:
             for j in range(0,30):
               if j < self.bufferX:
-                (r,g,b) = palette[received_buffer[idx]]
+                (r,g,b) = palette[int(received_buffer[idx])]
+                print(r,g,b,int(received_buffer[idx]))
                 idx += 1
                 led_data = led_data + [b,r,g]
               else:
                 led_data = led_data + [0,0,0]
+
 
           else:
             for j in range(0,30):
