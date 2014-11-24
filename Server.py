@@ -83,7 +83,9 @@ class GridServer:
                 self.led_data[idx*3] = b
                 self.led_data[idx*3 + 1] = r
                 self.led_data[idx*3 + 2] = g
-                idx += 1
+              idx += 1
+          else:
+            idx += 30
 
         # Check against rate limit - dont overload
         now = time.time()
