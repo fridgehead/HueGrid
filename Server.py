@@ -27,10 +27,11 @@ class GridServer:
 
     self.ser = serial_comms.connect()
 
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
       self.sock.bind((self.ipaddr, self.port))
+      self.sock.listen(1)
       # TODO - pick the right exception
     except:
       print("Failure to bind.")
@@ -66,7 +67,7 @@ class GridServer:
         received_buffer = self.sock.recv(512) # We assume that bufferx * buffery is less than this number
         received_buffer = received_buffer.strip()
 
-        print("received frame")
+        #print("received frame")
         
         if len(received_buffer) != recv_buffer_size:
           print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
@@ -103,7 +104,7 @@ class GridServer:
       dt = now - self.start_time 
       if dt >= self.rate:
         self.start_time = now # Be careful where you put this
-        print("Setting Screen")
+        #print("Setting Screen")
         serial_comms.set_image(self.led_data,self.ser)
         
      
