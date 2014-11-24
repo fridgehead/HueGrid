@@ -26,7 +26,14 @@ class GridServer:
 
     try:
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-      self.sock.bind((self.ipaddr, self.port))
+      
+      try:
+        self.sock.bind((self.ipaddr, self.port))
+      except:
+        print("Failure to bind.")
+        self.sock.close()
+        raise
+        self.sock.setblocking(0)
 
       #ser = serial_comms.connect()
       self.running = True
@@ -70,9 +77,11 @@ class GridServer:
        
       #ser.close()
 
+      self.sock.close()
+
     except: 
       import traceback
-      print ("Error occured: " + sys.exc_info()[0])
+      print ("Error occured: " + str(sys.exc_info()[0]))
       print (traceback.print_exc())
 
   
