@@ -86,7 +86,7 @@ class Game:
     print("Quitting...")
     if self.pygame:
       self.pygame.cleanup()
-    
+
     self.running = False
     sys.exit()
 

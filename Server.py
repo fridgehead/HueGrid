@@ -35,7 +35,7 @@ class GridServer:
         raise
         self.sock.setblocking(0)
 
-      #ser = serial_comms.connect()
+      ser = serial_comms.connect()
       self.running = True
 
       palette = { 0: (0,0,0), 1: (255,0,0), 2 : (255,255,0), 3:(255,0,255), 
@@ -63,17 +63,17 @@ class GridServer:
                 if j < self.bufferX:
                   (r,g,b) = palette[received_buffer[idx]]
                   idx += 1
-                  data = data + [b,r,g]
+                  led_data = led_data + [b,r,g]
                 else:
-                  data = data + [0,0,0]
+                  led_data = led_data + [0,0,0]
 
             else:
               for j in range(0,30):
-                data = data + [0,0,0] # could be slow :S
+                led_data = led_data + [0,0,0] # could be slow :S
 
-          #serial_comms.set_image(led_data,ser)
+          serial_comms.set_image(led_data,ser)
        
-      #ser.close()
+      ser.close()
 
       self.sock.close()
 
