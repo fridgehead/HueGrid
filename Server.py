@@ -105,8 +105,8 @@ class GridServer:
         else:
         # convert each element of buffer into 0-8 vals
         # fastmode ignores sat and val elements 
-        data = [[int(a),0,0] for a in buffer]
-        self._g.newFrameData(data)
+          data = [[int(a),0,0] for a in buffer]
+          self._g.newFrameData(data)
 
     except: 
       print("Error occured. Stopping.")
