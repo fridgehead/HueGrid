@@ -61,8 +61,8 @@ class GridServer:
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
 
-        print(received_buffer)
-        print("-----")
+        print("F").
+
         idx = 0
         led_data = []
 
@@ -85,6 +85,7 @@ class GridServer:
         now = time.time()
         dt = now - self.start_time 
         if dt >= self.rate:
+          print("Setting Screen")
           serial_comms.set_image(led_data,self.ser)
      
     self.ser.close()

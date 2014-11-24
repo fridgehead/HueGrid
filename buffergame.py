@@ -30,7 +30,7 @@ class BufferGame(object):
     data = []
     for i in range(0,self.boardY): 
       for j in range(0,self.boardX):
-        data.append( 0 )
+        data.append(self.buffer[i][j])
     
     return data
 

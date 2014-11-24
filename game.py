@@ -21,7 +21,7 @@ class Game:
     self.port = port
     self.local = local
 
-    self.buffer_palette = {'I' : 1, 'J' : 2, 'L' : 3, 'O' : 4, 'Z' : 5, 'S' : 6 , 'T' : 7 }
+    self.buffer_palette = {"I" : 1, "J" : 2, "L" : 3, "O" : 4, "Z" : 5, "S" : 6 , "T" : 7 }
     
     if self.pygame:
       self.pygame.init()
@@ -34,12 +34,11 @@ class Game:
     ''' send the game buffer to the server via udp.
     We prepare the buffer by converting down into numnbers 0-8.'''
 
-
     send_buffer = [] 
 
     for item in self.game.getLinearBuffer():
       if item in self.buffer_palette.keys():
-        send_buffer.append(self.buffer_palette[item])
+        send_buffer.append( int(self.buffer_palette[item]) )
       else:
         send_buffer.append(0)
 
