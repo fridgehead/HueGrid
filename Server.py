@@ -44,7 +44,7 @@ class GridServer:
         print("new frame")
         
         if len(received_buffer) != self.bufferY * self.bufferX:
-          print "WRONG SIZE"
+          print("WRONG SIZE")
         else:
 
           # Our serial buffer is actually 30 x 30 x 3
@@ -73,8 +73,8 @@ class GridServer:
 
     except: 
       import traceback
-      print "Error occured: %s " % sys.exc_info()[0] 
-      print traceback.print_exc()
+      print ("Error occured: " + sys.exc_info()[0])
+      print (traceback.print_exc())
 
   
 
