@@ -28,7 +28,7 @@ class GridServer:
     self.ser = serial_comms.connect()
 
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    self.socket.setblocking(0)
+    self.sock.setblocking(0)
     
     try:
       self.sock.bind((self.ipaddr, self.port))
