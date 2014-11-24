@@ -80,24 +80,21 @@ class GridServer:
 
         idx = 0
         ridx = 0
-        cidx = 29
    
-        for i in range(0,30):
+        for i in reversed(range(0,30)):
           if i < self.bufferY:
             for j in range(0,30):
               if j < self.bufferX:
                 (r,g,b) = palette[int(received_buffer[ridx])]
-
-                self.led_data[cidx * 30 + idx * 3] = b
-                self.led_data[cidx * 30 + idx * 3 + 1] = r
-                self.led_data[cidx * 30 + idx * 3 + 2] = g
+                iw = i * 30
+                self.led_data[iw + idx ] = b
+                self.led_data[iw + idx + 1] = r
+                self.led_data[iw + idx + 2] = g
               
                 ridx+=1
-              idx += 1
+              idx += 3
             idx = 0
-          cidx = cidx - 1
     
-
       # Check against rate limit - dont overload
       now = time.time()
       dt = now - self.start_time 
