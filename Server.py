@@ -95,9 +95,10 @@ class GridServer:
       now = time.time()
       dt = now - self.start_time 
       if dt >= self.rate:
+        self.start_time = time.time()
         print("Setting Screen")
         serial_comms.set_image(self.led_data,self.ser)
-        self.start_time = time.time()
+        
      
     self.ser.close()
     self.sock.close()
