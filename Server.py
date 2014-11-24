@@ -6,7 +6,6 @@ email : tom@imakethin.gs / oni@section9.co.uk
 """
 
 import socket, argparse, sys
-from GridController import GridController
 
 
 class GridServer:
@@ -82,6 +81,8 @@ class GridServer:
     ''' Run round the sever, listening for udp packets and sending
     the data to the grid controller. We perform a restriction on how
     fast we call the grid-controller but we can receive very quickly.'''
+
+    from GridController import GridController
 
     try:
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
