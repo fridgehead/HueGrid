@@ -25,6 +25,9 @@ class GridServer:
     import serial_comms
 
     try:
+
+      ser = serial_comms.connect()
+      
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
       
       try:
@@ -35,7 +38,7 @@ class GridServer:
         raise
         self.sock.setblocking(0)
 
-      ser = serial_comms.connect()
+      
       self.running = True
 
       palette = { 0: (0,0,0), 1: (255,0,0), 2 : (255,255,0), 3:(255,0,255), 
@@ -47,6 +50,8 @@ class GridServer:
         received_buffer, addr = self.sock.recvfrom(1024)
         received_buffer = received_buffer.strip()
         
+        print("Frame receieved.")
+
         if len(received_buffer) != self.bufferY * self.bufferX:
           print("Buffer receieved is the wrong size: " + str(len(received_buffer)) + " vs " + str(self.bufferY * self.bufferX))
         else:
