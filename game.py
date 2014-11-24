@@ -7,14 +7,13 @@ email : oni@section9.co.uk
 
 import tetris, argparse, time, sys, socket
 
-
 # TODO - We need to be careful with the controls - the player cant really exceed the fps
 # so we may have to actually queue events and potentially dispose of them :S More testing needed
 # I suspect.
 
 class Game:
 
-  def __init__(self, game, fps=2, server_address="192.168.1.1", port=9001, pygame=False):
+  def __init__(self, game, fps=2, local=True, server_address="192.168.1.1", port=9001, pygame=False):
     self.fps = fps;
     self.interval = 1 / fps;
     self.game = game
@@ -22,17 +21,28 @@ class Game:
     self.server_address = server_address
     self.port = port
 
+    self.buffer_palette = {'I' : 1, 'J' : 2, 'L' : 3, 'O' : 4, 'Z' : 5, 'S' : 6 , 'T' : 7 }
+
     if self.pygame:
       self.pygame.init()
 
+    if not local:
+      self.connectToServer()  
 
   def connectToServer(self):
     ''' connect to server via udp '''
-    print("LocalName: " + socket.gethostname())
-    print("Connecting To: " + self.server_address + " on " + repr(self.port) )
-    
-    socket.create_connection((self.server_address,self.port))
 
+    try:
+
+      print("LocalName: " + socket.gethostname())
+      print("Connecting To: " + self.server_address + " on " + repr(self.port) )
+    
+      socket.create_connection((self.server_address,self.port))
+
+    except:
+      import traceback
+      print("Error connecting to server.")
+      print(traceback.print_exc())
 
   def sendBuffer(self):
     ''' package the buffer and send over udp '''
@@ -56,9 +66,10 @@ class Game:
       now = time.time()
       dt = now - start_time 
       if dt >= self.interval:
-        print("---")
-        self.game.frame(dt)
-        self.game.prettyPrint()
+        
+        self.game.frame(self.fps)
+        #print("---")
+        #self.game.prettyPrint()
         start_time = now
 
   def quit(self):
@@ -67,6 +78,8 @@ class Game:
       self.pygame.cleanup()
       self.running = False
       sys.exit()
+
+
 
 
 if __name__ == "__main__" : 
@@ -83,20 +96,33 @@ if __name__ == "__main__" :
   print ('Press Ctrl+C to exit')
 
   parser = argparse.ArgumentParser(description='Process some integers.')
-  parser.add_argument('--fps', metavar='N', type=float, help='overall framerate')
-  parser.add_argument('--pygame', help='launch a pygame window', action='store_true')
-  parser.add_argument('--crash', help='crash and burn', action='store_true')
+  parser.add_argument('--fps', metavar='N', type=float, help='overall framerate.')
+  parser.add_argument('--pygame', help='launch a pygame window.', action='store_true')
+  parser.add_argument('--crash', help='crash and burn.', action='store_true')
+  parser.add_argument('--server', metavar='ip address', help='server string.')
+  parser.add_argument('--port', metavar='N', type=int, help='port to connect to.')
+  parser.add_argument('--local',  help='run locally with no server.', action='store_true')
 
   argz = vars(parser.parse_args())
 
-  # Basic options
+  # Basic options - defaults
   fps = 1
   address = "localhost"
   port = 9001
+  local = False
 
+  # Parse arguments
   if argz["fps"]:
     fps = argz["fps"]
 
+  if argz["server"]:
+    address = argz["server"]
+
+  if argz["port"]:
+    port = argz["port"] 
+
+  if argz["local"]:
+    local = True
 
   # game choice options
   if argz["pygame"]:
@@ -104,7 +130,8 @@ if __name__ == "__main__" :
     tetris = tetris.Tetris();
     import pygame_wrapper, pygame
     wrapper = pygame_wrapper.Wrapper(tetris.buffer, tetris.boardX, tetris.boardY)
-    game = Game(tetris,fps,address,port,wrapper)
+    game = Game(tetris,fps,local,address,port,wrapper)
+
 
     # Bind pygame keyboard events to tetris game logic
     wrapper.register_event( pygame.KEYDOWN, pygame.K_LEFT, tetris.goLeft )
@@ -120,13 +147,13 @@ if __name__ == "__main__" :
 
     crashburn = screensaver.FileToBuffer()
     wrapper = pygame_wrapper.Wrapper(crashburn.buffer, crashburn.boardX, crashburn.boardY)
-    game = Game(crashburn,fps,address,port,wrapper)
+    game = Game(crashburn,fps,local,address,port,wrapper)
    
     game.loop()
 
 
   else:
     tetris = tetris.Tetris();
-    game = Game(tetris,fps,address,port)
+    game = Game(tetris,fps,local,address,port)
     game.loop()
 
