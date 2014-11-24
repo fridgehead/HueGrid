@@ -58,7 +58,7 @@ class GridServer:
       # TODO - Should we wait for data or be changing the screen
       # at a regular rate? I think the latter
 
-      received_buffer, addr = self.sock.recvfrom(1024)
+      received_buffer, addr = self.sock.recvfrom(self.bufferY * self.bufferX)
       received_buffer = received_buffer.strip()
       
 
