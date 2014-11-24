@@ -63,7 +63,7 @@ class GridServer:
       
       try:
         recv_buffer_size = self.bufferY * self.bufferX
-        received_buffer, addr = self.sock.recv(512) # We assume that bufferx * buffery is less than this number
+        received_buffer = self.sock.recv(512) # We assume that bufferx * buffery is less than this number
         received_buffer = received_buffer.strip()
 
         print("received frame")
