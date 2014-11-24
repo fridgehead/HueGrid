@@ -81,7 +81,6 @@ def image_test():
   tval = 0
   for i in range(45): 
 
-
     image_buffer=[]
     image_buffer.append(0x99)
     image_buffer.append(0x69)

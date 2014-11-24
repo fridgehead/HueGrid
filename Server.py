@@ -38,6 +38,11 @@ class GridServer:
       raise
       self.sock.setblocking(0)
 
+
+    # Create our LED Buffer
+    self.led_data = []
+    for i in range(0,self.bufferY * self.bufferX * 3):
+      self.led_data.append(0)
     
     self.running = True
 
@@ -61,25 +66,24 @@ class GridServer:
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
 
-        print("Frame")
+        #print("Frame")
+
+        # Clear Data buffer
+        for i in range(0,self.bufferY * self.bufferX * 3):
+          self.led_data[i] = 0
 
         idx = 0
-        led_data = []
-
+   
         for i in range(0,30):
           if i < self.bufferY:
             for j in range(0,30):
               if j < self.bufferX:
                 (r,g,b) = palette[int(received_buffer[idx])]
+
+                self.led_data[idx*3] = b
+                self.led_data[idx*3 + 1] = r
+                self.led_data[idx*3 + 2] = g
                 idx += 1
-                led_data = led_data + [b,r,g]
-              else:
-                led_data = led_data + [0,0,0]
-
-
-          else:
-            for j in range(0,30):
-              led_data = led_data + [0,0,0] # could be slow :S
 
         # Check against rate limit
         now = time.time()
