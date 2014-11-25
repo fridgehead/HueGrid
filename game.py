@@ -47,7 +47,7 @@ class Game:
     try:
       self.socket.sendto(msg, (self.server_address, self.port))
       # TODO - dont break on all exceptions! Its a bit naff
-    
+
     except:
       import traceback
       print("Error connecting to server: " + self.server_address + ":" + str(self.port))
@@ -72,9 +72,7 @@ class Game:
           self.pygame.cleanup()
           self.pygame = False
 
-
-      if not self.local:
-        self.bufferToServer()
+    
 
       now = time.time()
       dt = now - start_time 
@@ -84,6 +82,8 @@ class Game:
         #print("---")
         #self.game.prettyPrint()
         start_time = now
+        if not self.local:
+          self.bufferToServer()
 
   def quit(self):
     print("Quitting...")

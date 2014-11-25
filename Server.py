@@ -10,7 +10,7 @@ import socket, argparse, sys, time
 
 class GridServer:
 
-  def __init__(self, ipaddr="localhost", port=9001, bufferx=2, buffery=2, rate=2.0):
+  def __init__(self, ipaddr="localhost", port=9001, bufferx=13, buffery=14, rate=2.0):
 
     self.bufferX = bufferx
     self.bufferY = buffery
@@ -64,51 +64,41 @@ class GridServer:
       # at a regular rate? I think the latter
       received_buffer = []
       try:
-        received_buffer = self.sock.recv(512) # We assume that bufferx * buffery is less than this number
+        received_buffer = self.sock.recv(2048) # We assume that bufferx * buffery is less than this number
+        received_buffer.strip()
       except socket.error:
         # Likely there was no data as we are non blocking
         pass  
-
-        #print("received frame")
-      # Clear Data buffer
-      for i in range(0, led_buffer_size):
-        self.led_data[i] = 0
-
-      if received_buffer and len(received_buffer) == recv_buffer_size:
+        
+      if len(received_buffer) == recv_buffer_size:
+        
         # Our serial buffer is actually 30 x 30 x 3
         # We need to pad it out
       
-
-        idx = 0
         ridx = 0
    
         for i in reversed(range(0,30)):
-          iw = i * 30
+          iw = i * 30 * 3
 
           if i < self.bufferY:
             for j in range(0,30):
               if j < self.bufferX:
                 (r,g,b) = palette[int(received_buffer[ridx])]      
-                self.led_data[iw + idx ] = b
-                self.led_data[iw + idx + 1] = r
-                self.led_data[iw + idx + 2] = g
+                self.led_data[iw + j * 3 ] = b
+                self.led_data[iw + j * 3 + 1] = r
+                self.led_data[iw + j * 3 + 2] = g
               
                 ridx += 1
-              idx += 3
-            idx = 0
-    
+              else:
+                self.led_data[iw + j * 3 ] = 0
+                self.led_data[iw + j * 3 + 1] = 0
+                self.led_data[iw + j * 3 + 2] = 0
+              
       # Check against rate limit - dont overload
       now = time.time()
       dt = now - self.start_time 
       if dt >= self.rate:
         self.start_time = now # Be careful where you put this
-        print("Setting Screen")
-        if self.blink:
-          self.led_data[led_buffer_size-1] = 255
-          self.blink = False
-        else:
-          self.blink = True
-
         serial_comms.set_image(self.led_data,self.ser)
         
      
@@ -177,7 +167,8 @@ if __name__ == "__main__":
 
   argz = vars(parser.parse_args())
 
-  width = height = 2
+  width = 13 
+  height = 14
   addr = "127.0.0.1"
   port = 9001
   rate = 2.0
