@@ -139,7 +139,7 @@ if __name__ == "__main__" :
   # game choice options
   if argz["pygame"]:
 
-    tetris = tetris.Tetris();
+    tetris = tetris.Tetris(14,13);
     import pygame_wrapper, pygame
     wrapper = pygame_wrapper.Wrapper(tetris.buffer, tetris.boardX, tetris.boardY)
     game = Game(tetris,fps,local,address,port,wrapper)
@@ -150,6 +150,7 @@ if __name__ == "__main__" :
     wrapper.register_event( pygame.KEYDOWN, pygame.K_RIGHT, tetris.goRight )
     wrapper.register_event( pygame.KEYDOWN, pygame.K_SPACE, tetris.goRotate )
     wrapper.register_event( pygame.KEYDOWN, pygame.K_DOWN, tetris.goDown )
+    wrapper.register_event( pygame.KEYDOWN, pygame.K_SPACE, tetris.goStart )
 
     #game.connectToServer()
     game.loop()
@@ -165,7 +166,7 @@ if __name__ == "__main__" :
 
 
   else:
-    tetris = tetris.Tetris();
+    tetris = tetris.Tetris(14,13);
     game = Game(tetris,fps,local,address,port)
     game.loop()
 

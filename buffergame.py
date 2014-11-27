@@ -6,12 +6,70 @@ email : oni@section9.co.uk
 """
 
 
+def loadFromFile(boardX, boardY, filename):
+  ''' function that loads buffers from a file using our format.
+      file format is: 
+      
+      time <seconds>
+      <bufferdata>
+      ...
+
+      return data is {
+        "buffers" : [
+          "time" : <seconds>
+          "buffer": <data>
+        ]
+        "duration" : <seconds>
+      }
+
+  '''
+  
+  buffers = []
+  timeLength = 0
+
+  with open(filename) as f:
+  
+    ridx = boardY - 1
+    try:
+      for line in f.readlines():
+
+        if "time" in line:
+          # Create a new frame
+          new_frame = { "buffer" :[], "time" : 0  }
+          new_frame["time"] = float(line.split(" ")[1])
+          timeLength += new_frame["time"]
+
+          for i in range(0,boardY):
+            row = []
+            for j in range(0,boardX):
+              row.append( 0 )
+            new_frame["buffer"].append(row)
+            
+          buffers.append( new_frame )
+          ridx = boardY - 1
+
+        else:
+          
+          cidx = 0
+          for char in line:
+            if char != '\n':
+              buffers[len(buffers)-1]["buffer"][ridx][cidx] = char
+              cidx+=1
+
+          ridx-=1
+    except:
+      print("Failed to read frame format.")
+      raise
+
+  return { "buffers" : buffers, "duration" : timeLength }
+
+
 
 class BufferGame(object):
 
   ''' Base class that creates and sets buffers '''
 
-  def __init__(self, boardX = 13, boardY = 14):
+  def __init__(self, boardX = 14, boardY = 13):
 
     self.boardX = boardX
     self.boardY = boardY
@@ -25,6 +83,18 @@ class BufferGame(object):
 
   def frame(self,dt):
     pass
+
+  def clearBuffer(self):
+    for i in range(0,self.boardY):
+      for j in range(0,self.boardX):
+        self.buffer[i][j] = 0
+
+  def copyBuffer(self, bbuffer):
+    ''' Copy a frame into the actual buffer '''
+    for i in range(0,self.boardY):
+      for j in range(0,self.boardX):
+        self.buffer[i][j] = bbuffer[i][j]
+    
 
   def getLinearBuffer(self):
     data = []

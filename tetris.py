@@ -8,14 +8,14 @@ email : oni@section9.co.uk
 
 
 import random, copy
-from buffergame import BufferGame
+from buffergame import BufferGame, loadFromFile
 
  
 class Tetris(BufferGame):
   ''' Basic game logic for tetris. We deal in discrete states with no notion
   of time, more to do with frames and discrete values '''
 
-  def __init__(self, boardX = 13, boardY = 14):
+  def __init__(self, boardX = 14, boardY = 13):
   
     super(Tetris,self).__init__(boardX,boardY) 
 
@@ -39,14 +39,17 @@ class Tetris(BufferGame):
     self.level = 1
     self.state = "READY"
     self.eventQueue = []    # list of tuples - function and arg
-    self.dframes = 0        # frames passed between ticks
+    self._dframes = 0       # frames passed between ticks
+    self._eframes = 0       # end game animation frames passed
 
+    gameover_data = loadFromFile(boardX, boardY, "game_over.txt")
+
+    self._gameOverFrames = gameover_data["buffers"]
+    self._gameOverDuration = gameover_data["duration"]
 
   def start(self):
     ''' Clear the board and start the game '''
-    for i in range(0,self.boardY):
-      for j in range(0,self.boardX):
-        self.buffer[i][j] = 0
+    self.clearBuffer()
 
     self.level = 1
     self.currentBlock = self.createBlock()
@@ -83,12 +86,13 @@ class Tetris(BufferGame):
     
     # Find highest y point - if we rotate of course
     topy = 0
-    for (x,y) in new_block['bits']:
+    for [x,y] in new_block['bits']:
       if y > topy:
         topy = y
 
-    new_block['pos'][0] = (self.boardX / 2)
-    new_block['pos'][1] = (self.boardY - topy)
+    new_block['pos'][0] = self.boardX / 2
+    new_block['pos'][1] = self.boardY - topy
+
  
     return new_block
 
@@ -107,6 +111,10 @@ class Tetris(BufferGame):
   
   def goDown(self):
     self.eventQueue.append( (self._move,(0,-1)))
+
+  def goStart(self):
+    if self.state == "READY":
+      self.start()
 
   def _rotate(self,clockwise):
     ''' Rotate a block - somewhat more involved '''
@@ -161,7 +169,7 @@ class Tetris(BufferGame):
       xp = x + block['pos'][0]
       yp = y + block['pos'][1]
 
-      if xp >= 0 and xp <= self.boardX and yp >= 0 and yp <= self.boardX:
+      if xp >= 0 and xp < self.boardX and yp >= 0 and yp < self.boardY:
         self.buffer[yp][xp] = 0
 
   def moveHere(self, block, offset):
@@ -233,9 +241,28 @@ class Tetris(BufferGame):
         # garbage collect
         self.moveHere(self.currentBlock,(0,-1))
 
-  def game_over(self):
+  def game_over(self,fps=2):
     ''' Game over animation '''
-    pass
+    
+    dd = float(self._eframes) / float(fps)
+
+    if dd >= self._gameOverDuration: # 3 second game over screen
+      self._eframes = 0
+      self.clearBuffer()
+      self.state = "READY"
+      return
+    else:
+      # draw the game over screen - find out which frame we want
+      self.clearBuffer()
+      dt = 0
+  
+      for frame in self._gameOverFrames:
+        dt += frame["time"]
+        if dd <= dt:
+          self.copyBuffer(frame["buffer"])
+          break
+
+    self._eframes += 1
 
 
   def frame(self,fps=2):
@@ -245,7 +272,7 @@ class Tetris(BufferGame):
 	  button press etc '''
 
 	  if self.state == "GAME_OVER":
-	    self.game_over()
+	    self.game_over(fps)
 	  
 	  elif self.state == "PLAYING":
 
@@ -253,14 +280,10 @@ class Tetris(BufferGame):
 
       # self.tick is called depending on the level / difficulty of the game
       # For now we just use a basis of 1 second drops
-			self.dframes += 1
-			if self.dframes / fps >= 1:
+			self._dframes += 1
+			if self._dframes / fps >= 1: # 1 second - 1 level
 				self.tick()
-				self.dframes = 0
-
-	  elif self.state == "READY":
-	    self.start()
-
+				self._dframes = 0
 
 if __name__ == "__main__" : 
   tetris = Tetris()

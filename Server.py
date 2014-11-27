@@ -10,7 +10,7 @@ import socket, argparse, sys, time
 
 class GridServer:
 
-  def __init__(self, ipaddr="localhost", port=9001, bufferx=13, buffery=14, rate=2.0):
+  def __init__(self, ipaddr="localhost", port=9001, bufferx=14, buffery=13, rate=2.0):
 
     self.bufferX = bufferx
     self.bufferY = buffery
@@ -26,8 +26,6 @@ class GridServer:
     import serial_comms
 
     self.ser = serial_comms.connect()
-
-    self.blink = True
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
@@ -117,33 +115,49 @@ class GridServer:
     from GridController import GridController
 
     try:
-      self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
       self.sock.bind((self.ipaddr, self.port))
+      # TODO - pick the right exception
+    except:
+      print("Failure to bind.")
+      self.sock.close()
+      raise
+      self.sock.setblocking(0)
 
-      self._g = GridController(self.bufferX, self.bufferY, testmode = True)
-      self._g.setFastMode()
-      self._g.loadCalibrationMap("test.map")
-      buffer = []
+    self.sock.setblocking(0)
 
-      self.running = True
-      
-      while self.running:
-        buffer, addr = self.sock.recvfrom(1024)
-        buffer = buffer.strip()
+    self._g = GridController(self.bufferX, self.bufferY, testmode = True)
+    self._g.setFastMode()
+    self._g.loadCalibrationMap("test.map")
+
+    self.start_time = time.time()
+    recv_buffer_size = self.bufferY * self.bufferX
+
+    while self.running:
+
+      # TODO - Should we wait for data or be changing the screen
+      # at a regular rate? I think the latter
+      received_buffer = []
+      try:
+        received_buffer = self.sock.recv(2048) # We assume that bufferx * buffery is less than this number
+        received_buffer.strip()
+      except socket.error:
+        # Likely there was no data as we are non blocking
+        pass  
         
-        print("new frame")
-        
-        if len(buffer) != self.bufferY * self.bufferX:
-          print("WRONG SIZE")
-        else:
-        # convert each element of buffer into 0-8 vals
-        # fastmode ignores sat and val elements 
-          data = [[int(a),0,0] for a in buffer]
+      if len(received_buffer) == recv_buffer_size:
+
+        now = time.time()
+        dt = now - self.start_time 
+        if dt >= self.rate:
+          self.start_time = now # Be careful where you put this
+
+          # convert each element of buffer into 0-8 vals
+          # fastmode ignores sat and val elements 
+          data = [int(a) for a in buffer]
           self._g.newFrameData(data)
 
-    except: 
-      print("Error occured. Stopping.")
-      self._g.stop()
+
+    self._g.stop()
 
   def stop():
     self._g.stop
@@ -167,8 +181,8 @@ if __name__ == "__main__":
 
   argz = vars(parser.parse_args())
 
-  width = 13 
-  height = 14
+  width = 14 
+  height = 13
   addr = "127.0.0.1"
   port = 9001
   rate = 2.0
