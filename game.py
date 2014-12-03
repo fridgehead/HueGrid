@@ -115,6 +115,7 @@ if __name__ == "__main__" :
   parser.add_argument('--port', metavar='N', type=int, help='port to connect to.')
   parser.add_argument('--local',  help='run locally with no server.', action='store_true')
   parser.add_argument('--message', metavar='scroll message', help='scroll a message then quit') 
+  parser.add_argument('--scrollspeed', metavar='N', type=float, help='How man steps a second for the scolling message')
 
   argz = vars(parser.parse_args())
 
@@ -168,7 +169,11 @@ if __name__ == "__main__" :
   elif argz["message"]:
     import pygame_wrapper, pygame, message
 
-    messenger = message.MessageWriter(14, 13, "glyphs.txt", argz["message"])
+    scrollspeed = 1
+    if argz["scrollspeed"]:
+      scrollspeed = argz["scrollspeed"]
+
+    messenger = message.MessageScroller(14, 13, "glyphs.txt", argz["message"],scrollspeed)
     wrapper = pygame_wrapper.Wrapper(messenger.buffer, messenger.boardX, messenger.boardY)
     game = Game(messenger,fps,local,address,port,wrapper)
 
