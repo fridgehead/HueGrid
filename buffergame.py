@@ -16,7 +16,7 @@ def loadFromFile(boardX, boardY, filename):
 
       return data is {
         "buffers" : [
-          "time" : <seconds>
+          "time" : <seconds> OR "key" : <key>
           "buffer": <data>
         ]
         "duration" : <seconds>
@@ -26,6 +26,16 @@ def loadFromFile(boardX, boardY, filename):
   
   buffers = []
   timeLength = 0
+
+  def _newBuffer(buffers):
+    for i in range(0,boardY):
+      row = []
+      for j in range(0,boardX):
+        row.append( 0 )
+      new_frame["buffer"].append(row)
+            
+      buffers.append( new_frame )
+
 
   with open(filename) as f:
   
@@ -39,14 +49,16 @@ def loadFromFile(boardX, boardY, filename):
           new_frame["time"] = float(line.split(" ")[1])
           timeLength += new_frame["time"]
 
-          for i in range(0,boardY):
-            row = []
-            for j in range(0,boardX):
-              row.append( 0 )
-            new_frame["buffer"].append(row)
-            
-          buffers.append( new_frame )
+          _newBuffer(buffers)
           ridx = boardY - 1
+
+        elif "key" in line:
+        # create a new frame with a special key and a default time
+          new_frame = { "buffer" :[], "key" : "a"  }
+          new_frame["key"] = line.split(" ")[1].strip()
+      
+          _newBuffer(buffers)
+          ridx = boardY - 1          
 
         else:
           

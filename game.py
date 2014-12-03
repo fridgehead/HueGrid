@@ -114,6 +114,7 @@ if __name__ == "__main__" :
   parser.add_argument('--server', metavar='ip address', help='server string.')
   parser.add_argument('--port', metavar='N', type=int, help='port to connect to.')
   parser.add_argument('--local',  help='run locally with no server.', action='store_true')
+  parser.add_argument('--message', metavar='scroll message', help='scroll a message then quit') 
 
   argz = vars(parser.parse_args())
 
@@ -158,12 +159,20 @@ if __name__ == "__main__" :
   elif argz["crash"]:
     import pygame_wrapper, pygame, screensaver
 
-    crashburn = screensaver.FileToBuffer()
+    crashburn = screensaver.FileToBuffer(14,13)
     wrapper = pygame_wrapper.Wrapper(crashburn.buffer, crashburn.boardX, crashburn.boardY)
     game = Game(crashburn,fps,local,address,port,wrapper)
    
     game.loop()
 
+  elif argz["message"]:
+    import pygame_wrapper, pygame, message
+
+    messenger = message.MessageWriter(14, 13, "glyphs.txt", argz["message"])
+    wrapper = pygame_wrapper.Wrapper(messenger.buffer, messenger.boardX, messenger.boardY)
+    game = Game(messenger,fps,local,address,port,wrapper)
+
+    game.loop()
 
   else:
     tetris = tetris.Tetris(14,13);

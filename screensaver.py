@@ -25,22 +25,27 @@ class FileToBuffer(BufferGame):
     self.copyBuffer(self.frames[0]["buffer"])
 
   
-  def frame(self,dt):
+  def frame(self,fps=2):
+
+    dt = 1/fps
+
     self.playhead += dt
     if self.playhead >= self.timeLength :
       self.playhead = 0 # loop back to the beginning
 
     tt = 0
-    idx = 0
-    for frame in self.frames:
-      tt += frame["time"]
+    idx = self.currentFrame 
+
+    for idx in range(0,len(self.frames)-1):
+
+      tt += self.frames[idx]["time"]
+
       if tt > self.playhead:
         if idx != self.currentFrame:
+          print("swap",idx)
           self.copyBuffer(self.frames[idx]["buffer"])
-          self.currentFrame = idx    
-          break
+          self.currentFrame = idx
+          return
 
-      idx+=1
 
- 
 
