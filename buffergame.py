@@ -27,14 +27,14 @@ def loadFromFile(boardX, boardY, filename):
   buffers = []
   timeLength = 0
 
-  def _newBuffer(buffers):
+  def _newBuffer():
     for i in range(0,boardY):
       row = []
       for j in range(0,boardX):
         row.append( 0 )
       new_frame["buffer"].append(row)
             
-      buffers.append( new_frame )
+    buffers.append( new_frame )
 
 
   with open(filename) as f:
@@ -49,7 +49,7 @@ def loadFromFile(boardX, boardY, filename):
           new_frame["time"] = float(line.split(" ")[1])
           timeLength += new_frame["time"]
 
-          _newBuffer(buffers)
+          _newBuffer()
           ridx = boardY - 1
 
         elif "key" in line:
@@ -57,7 +57,7 @@ def loadFromFile(boardX, boardY, filename):
           new_frame = { "buffer" :[], "key" : "a"  }
           new_frame["key"] = line.split(" ")[1].strip()
       
-          _newBuffer(buffers)
+          _newBuffer()
           ridx = boardY - 1          
 
         else:

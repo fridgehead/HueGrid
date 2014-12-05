@@ -53,10 +53,6 @@ class Game:
       print("Error connecting to server: " + self.server_address + ":" + str(self.port))
       print(traceback.print_exc())
 
-  def sendBuffer(self):
-    ''' package the buffer and send over udp '''
-    pass
-
 
   def loop(self):
     start_time = time.time()
@@ -73,7 +69,6 @@ class Game:
           self.pygame = False
 
     
-
       now = time.time()
       dt = now - start_time 
       if dt >= self.interval:
@@ -110,11 +105,11 @@ if __name__ == "__main__" :
   parser = argparse.ArgumentParser(description='Process some integers.')
   parser.add_argument('--fps', metavar='N', type=float, help='overall framerate.')
   parser.add_argument('--pygame', help='launch a pygame window.', action='store_true')
-  parser.add_argument('--crash', help='crash and burn.', action='store_true')
   parser.add_argument('--server', metavar='ip address', help='server string.')
   parser.add_argument('--port', metavar='N', type=int, help='port to connect to.')
   parser.add_argument('--local',  help='run locally with no server.', action='store_true')
   parser.add_argument('--message', metavar='scroll message', help='scroll a message then quit') 
+  parser.add_argument('--file', metavar='filename', help='load a file and go on repeat') 
   parser.add_argument('--scrollspeed', metavar='N', type=float, help='How man steps a second for the scolling message')
 
   argz = vars(parser.parse_args())
@@ -154,13 +149,21 @@ if __name__ == "__main__" :
     wrapper.register_event( pygame.KEYDOWN, pygame.K_DOWN, tetris.goDown )
     wrapper.register_event( pygame.KEYDOWN, pygame.K_SPACE, tetris.goStart )
 
-    #game.connectToServer()
+    # Makey Makey bindings on the mac
+    wrapper.register_event( pygame.KEYDOWN, pygame.K_b, tetris.goDown )
+    wrapper.register_event( pygame.KEYDOWN, pygame.K_n, tetris.goLeft )
+    wrapper.register_event( pygame.KEYDOWN, pygame.K_v, tetris.goRight )
+    wrapper.register_event( pygame.KEYDOWN, pygame.K_m, tetris.goStart )
+    wrapper.register_event( pygame.KEYDOWN, pygame.K_m, tetris.goRotate )
+
+    # TODO makey makey on the RI machine. Is it the same as above?
+
     game.loop()
 
-  elif argz["crash"]:
+  elif argz["file"]:
     import pygame_wrapper, pygame, screensaver
 
-    crashburn = screensaver.FileToBuffer(14,13)
+    crashburn = screensaver.FileToBuffer(14,13,argz["file"])
     wrapper = pygame_wrapper.Wrapper(crashburn.buffer, crashburn.boardX, crashburn.boardY)
     game = Game(crashburn,fps,local,address,port,wrapper)
    

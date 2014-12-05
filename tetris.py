@@ -42,10 +42,17 @@ class Tetris(BufferGame):
     self._dframes = 0       # frames passed between ticks
     self._eframes = 0       # end game animation frames passed
 
+    # Game over data
+
     gameover_data = loadFromFile(boardX, boardY, "game_over.txt")
 
     self._gameOverFrames = gameover_data["buffers"]
     self._gameOverDuration = gameover_data["duration"]
+
+    # start data
+    start_data = loadFromFile(boardX, boardY, "start_game.txt")
+    self._startFrames = start_data["buffers"]
+    self._startDuration = start_data["duration"]
 
   def start(self):
     ''' Clear the board and start the game '''
@@ -114,6 +121,8 @@ class Tetris(BufferGame):
 
   def goStart(self):
     if self.state == "READY":
+      self.eventQueue = [] # clear so we don't roll over into rotate or something
+      self._eframes = 0 # reset the eframes ready for game over
       self.start()
 
   def _rotate(self,clockwise):
@@ -264,26 +273,51 @@ class Tetris(BufferGame):
 
     self._eframes += 1
 
+  def ready(self,fps=2):
+    ''' display a simple tetris anination and press space to play. Pretty
+    much the same as game over I figure '''
+    self.clearBuffer()
+    dt = 0
+    dd = float(self._eframes) / float(fps)
+
+    if dd >= self._startDuration:
+      self._eframes = 0
+      self.clearBuffer()
+      self.copyBuffer(self._startFrames[0]["buffer"])
+
+    for frame in self._startFrames:
+      dt += frame["time"]
+      if dd <= dt:
+        self.copyBuffer(frame["buffer"])
+        break
+
+    self._eframes += 1
+
+
 
   def frame(self,fps=2):
-	  ''' We've had another frame. What should we do next?
+    ''' We've had another frame. What should we do next?
 	  We take an optional fps to get some idea of how fast
 	  we are going for things like game start, block fall
 	  button press etc '''
 
-	  if self.state == "GAME_OVER":
-	    self.game_over(fps)
-	  
-	  elif self.state == "PLAYING":
+    if self.state == "GAME_OVER":
+      self.game_over(fps)
 
-			self.check_events()
+    elif self.state == "PLAYING":
+
+      self.check_events()
 
       # self.tick is called depending on the level / difficulty of the game
       # For now we just use a basis of 1 second drops
-			self._dframes += 1
-			if self._dframes / fps >= 1: # 1 second - 1 level
-				self.tick()
-				self._dframes = 0
+      self._dframes += 1
+      if self._dframes / fps >= 1: # 1 second - 1 level
+        self.tick()
+        self._dframes = 0
+
+    elif self.state == "READY":
+      self.ready(fps)
+
 
 if __name__ == "__main__" : 
   tetris = Tetris()
