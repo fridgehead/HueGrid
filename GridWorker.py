@@ -61,7 +61,7 @@ class GridWorker(Thread):
             ct += 1
             doUpdate = True
             self.queue.task_done()
-        if doUpdate == True:
+	if doUpdate == True and self.testMode == False:
             print 
             #run over the upates in bulb list and compile them into the weird format it needs
             cmd = [01, 01]
