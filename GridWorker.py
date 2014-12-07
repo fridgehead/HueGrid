@@ -1,7 +1,7 @@
 from threading import Thread
 from Queue import Queue
 from time import sleep
-#from phue import Bridge
+from phue import Bridge
 import json
 
 
@@ -13,7 +13,7 @@ class GridWorker(Thread):
         self.queue = Queue()
         self.testMode = testMode
         if testMode != True:
-            self.bridge = Bridge(stationIP)
+            self.bridge = Bridge(ip=stationIP, username="newdeveloper")
        
         self.transitionTime = 1
         self.running = True
@@ -69,8 +69,9 @@ class GridWorker(Thread):
             for i in range(0, len(bulbList)):
                 cmd.append(valueList[i])
                 cmd.append(bulbList[i])
+            print cmd    
             cmdString = str(bytearray(cmd)).encode('hex')
-            command = {"duration" : 60000, "symbolselection" : cmdString}
+            command = {"duration" : 10000, "symbolselection" : cmdString}
             self.bridge.request('PUT', '/api/' + self.bridge.username + '/groups/0/transmitsymbol', json.dumps(command))
             sleep(0.05)
 
@@ -92,13 +93,13 @@ class GridWorker(Thread):
     
     def sendPointSymbols(self, lightList):
         col = range(0,7)
-        col[0] = "320000002A10101000ff"
-        col[1] = "320000002A10000000ff"
-        col[2] = "320000002A00100000ff"
-        col[3] = "320000002A00001000ff"
-        col[4] = "320000002A10100000ff"
-        col[5] = "320000002A00101000ff"
-        col[6] = "320000002A10001000ff"
+        col[0] = "320000002A10101000FF"
+        col[1] = "320000002A65FF7F00FF"
+        col[2] = "320000002AFF060000FF"
+        col[3] = "320000002AE52A0200FF"
+        col[4] = "320000002A0AFF1100FF"
+        col[5] = "320000002A0DFFC200FF"
+        col[6] = "320000002A0300C700FF"
         command = {}
         for i in range(0, 7):
             command[str(i+1)] = col[i]
