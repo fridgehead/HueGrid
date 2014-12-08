@@ -86,7 +86,7 @@ class GridController:
     '''
     def newFrameData(self, data):
         if len(data) != self.width * self.height:
-            print "Error!: new frame size incorrect"
+            print "Error!: new frame size incorrect",len(data)
             return
         self.framebuffer[1-self.framePtr] = data[:]
         self.framePtr = 1-self.framePtr

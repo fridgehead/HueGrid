@@ -88,7 +88,7 @@ class GridWorker(Thread):
                 self.bridge.set_light(bulbId, command)
             else :
                 print "command " + str(command)
-            sleep(0.12)                
+            sleep(0.32)                
             self.queue.task_done()
     
     def sendPointSymbols(self, lightList):
