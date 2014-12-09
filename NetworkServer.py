@@ -1,5 +1,8 @@
 from GridController import GridController
 import socket,sys
+
+
+
 pallette = [40000, 7000, 14000, 21000, 28000, 35000, 42000, 49000]
 bri = [0,255,255,255,255,255,255,255]
 fastMode = False
@@ -16,9 +19,6 @@ def signal_handler(sig, frame):
   exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-
-
-
 
 
 g = GridController(14, 12)

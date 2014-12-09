@@ -20,7 +20,7 @@ class Tetris(BufferGame):
     super(Tetris,self).__init__(boardX,boardY) 
 
     self.blocks = [
-        { 'bits' : [[-1,0],[ 0,0],[1,0],[2,0]], 'type' : 'I' , 'pos' : [0,0] },    # Long piece
+        { 'bits' : [[-1,0],[ 0,0],[1,0],[2,0]], 'type' : 'I' , 'pos' : [0,0] },  # Long piece
         { 'bits' : [[-1,1],[-1,0],[0,0],[1,0]], 'type' : 'J' , 'pos' : [0,0] },  # Left L
         { 'bits' : [[ 1,1],[-1,0],[0,0],[1,0]], 'type' : 'L' , 'pos' : [0,0] },  # Right L
         { 'bits' : [[ 1,1],[ 0,0],[1,0],[0,1]], 'type' : 'O' , 'pos' : [0,0] },  # Square

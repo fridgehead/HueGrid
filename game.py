@@ -36,11 +36,11 @@ class Game:
 
     send_buffer = [] 
 
-    for item in self.game.getLinearBuffer():
+    for item in self.game.getLinearBufferReversed():
       if item in self.buffer_palette.keys():
         send_buffer.append( int(self.buffer_palette[item]) )
       else:
-        send_buffer.append(0)
+        send_buffer.append(int(0))
 
     msg = ''.join(chr(x) for x in send_buffer)
 
@@ -136,7 +136,7 @@ if __name__ == "__main__" :
   # game choice options
   if argz["pygame"]:
 
-    tetris = tetris.Tetris(14,13);
+    tetris = tetris.Tetris(14,12)
     import pygame_wrapper, pygame
     wrapper = pygame_wrapper.Wrapper(tetris.buffer, tetris.boardX, tetris.boardY)
     game = Game(tetris,fps,local,address,port,wrapper)
@@ -163,7 +163,7 @@ if __name__ == "__main__" :
   elif argz["file"]:
     import pygame_wrapper, pygame, screensaver
 
-    crashburn = screensaver.FileToBuffer(14,13,argz["file"])
+    crashburn = screensaver.FileToBuffer(14,12,argz["file"])
     wrapper = pygame_wrapper.Wrapper(crashburn.buffer, crashburn.boardX, crashburn.boardY)
     game = Game(crashburn,fps,local,address,port,wrapper)
    
@@ -176,14 +176,14 @@ if __name__ == "__main__" :
     if argz["scrollspeed"]:
       scrollspeed = argz["scrollspeed"]
 
-    messenger = message.MessageScroller(14, 13, "glyphs.txt", argz["message"],scrollspeed)
+    messenger = message.MessageWriter(14, 12, "glyphs.txt", argz["message"],scrollspeed)
     wrapper = pygame_wrapper.Wrapper(messenger.buffer, messenger.boardX, messenger.boardY)
     game = Game(messenger,fps,local,address,port,wrapper)
 
     game.loop()
 
   else:
-    tetris = tetris.Tetris(14,13);
+    tetris = tetris.Tetris(14,12);
     game = Game(tetris,fps,local,address,port)
     game.loop()
 

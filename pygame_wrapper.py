@@ -7,9 +7,6 @@ uses pygame to visualise the state
 
 """
 
-
-
-
 import pygame
 from pygame.locals import *
 
