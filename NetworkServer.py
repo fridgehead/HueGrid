@@ -211,13 +211,14 @@ class GridServer:
     recv_buffer_size = self.bufferY * self.bufferX
 
     # Blank out first
-    blankFrame = [ [1,255,255] for a in range(recv_buffer_size) ]
+    blankFrame = [ [40000,0,255] for a in range(recv_buffer_size) ]
     print "clearing to default"
     self._g.newFrameData(blankFrame)
 
 
     # Now actually run the server listening for frames
 
+    self.running = True
     while self.running:
 
       # TODO - Should we wait for data or be changing the screen
@@ -231,7 +232,6 @@ class GridServer:
         pass  
       
       if len(received_buffer) == recv_buffer_size:
-
         now = time.time()
         dt = now - self.start_time 
         if dt >= self.rate:
@@ -239,7 +239,7 @@ class GridServer:
 
           # convert each element of buffer into 0-8 vals
           # fastmode ignores sat and val elements 
-          data = [ self.mapData(a) for a in buffer]
+          data = [ self.mapData(a) for a in received_buffer]
           self._g.newFrameData(data)
 
 
