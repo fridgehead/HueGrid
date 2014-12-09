@@ -1,15 +1,5 @@
-"""
-serial_comms.py 
-
-Basic serial comms for the EMF LEDs project.
-Adapted for working with RI HueGrid
-
-author : Benjamin Blundell
-email : oni@section9.co.uk
-
-"""
-
 import serial,sys,math
+from PIL import Image
 
 def connect():
 
@@ -63,6 +53,60 @@ def set_image(rgb_buffer,ser):
     response(ser)
  
 
+
+def sample_image(filename,ser):
+  im = Image.open(filename)
+  #print(im.format, im.size, im.mode)
+
+  rgb_buffer = []
+
+  exact = True
+  if im.size[0] != im.size[1] != 30:
+    exact = False
+
+  for row in range(0, 30):
+    for column in range (0,30):
+    
+      x = column
+      y = row
+      
+      if not exact:
+        x *= (math.floor(im.size[0]/ 31))
+        y *= (math.floor(im.size[1] / 31))
+
+      # sample around the centroid
+      rgb = [0,0,0]
+      if exact:
+        rgb = im.getpixel((x,y))
+
+      else:
+        ss = 5
+    
+        total = ss * 2
+        total = total * total
+        for xs in range(0,ss * 2):
+          for ys in range (0, ss* 2):
+            xsr = -ss + xs
+            ysr = -ss + ys
+            trgb = im.getpixel((x + xsr,y + ysr))
+            rgb[0] += trgb[0]
+            rgb[1] += trgb[1]
+            rgb[2] += trgb[2]
+
+        rgb[0] /= total
+        rgb[1] /= total
+        rgb[2] /= total
+    
+      brg = (int(rgb[2]),int(rgb[0]),int(rgb[1]))
+     
+      rgb_buffer.append(int(rgb[2]))
+      rgb_buffer.append(int(rgb[0]))
+      rgb_buffer.append(int(rgb[1]))
+
+  
+  set_image(rgb_buffer,ser)
+
+
 def clear_screen(ser):
 
   ser.write(b'\x99'b'\x70'b'\x96')
@@ -81,6 +125,7 @@ def image_test():
   tval = 0
   for i in range(45): 
 
+
     image_buffer=[]
     image_buffer.append(0x99)
     image_buffer.append(0x69)
@@ -97,7 +142,17 @@ def image_test():
 
 if __name__ == "__main__":
 
+
   ser = connect()
-  image_test()
-  test_func(ser)
+
+  #clear_screen()
+  if sys.argv[1] == "clear":
+    clear_screen(ser)
+  elif sys.argv[1] == "seq":
+    for i in range(2,len(sys.argv)):
+      sample_image(sys.argv[i],ser)
+  else:
+    sample_image(sys.argv[1],ser)
+  #image_test()
+  #test_func()
   ser.close() 

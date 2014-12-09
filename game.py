@@ -36,11 +36,11 @@ class Game:
 
     send_buffer = [] 
 
-    for item in self.game.getLinearBuffer():
+    for item in self.game.getLinearBufferReversed():
       if item in self.buffer_palette.keys():
         send_buffer.append( int(self.buffer_palette[item]) )
       else:
-        send_buffer.append(0)
+        send_buffer.append(int(0))
 
     msg = ''.join(chr(x) for x in send_buffer)
 
@@ -108,9 +108,11 @@ if __name__ == "__main__" :
   parser.add_argument('--server', metavar='ip address', help='server string.')
   parser.add_argument('--port', metavar='N', type=int, help='port to connect to.')
   parser.add_argument('--local',  help='run locally with no server.', action='store_true')
-  parser.add_argument('--message', metavar='scroll message', help='scroll a message then quit') 
-  parser.add_argument('--file', metavar='filename', help='load a file and go on repeat') 
-  parser.add_argument('--scrollspeed', metavar='N', type=float, help='How man steps a second for the scolling message')
+  parser.add_argument('--message', metavar='scroll message', help='scroll a message then quit.') 
+  parser.add_argument('--file', metavar='filename', help='load a file and go on repeat.') 
+  parser.add_argument('--scrollspeed', metavar='N', type=float, help='How man steps a second for the scolling message.')
+  parser.add_argument('--width', metavar='N', type=int, help='buffer width.')
+  parser.add_argument('--height', metavar='N', type=int, help='buffer height.')
 
   argz = vars(parser.parse_args())
 
@@ -119,6 +121,9 @@ if __name__ == "__main__" :
   address = "localhost"
   port = 9001
   local = False
+
+  width = 14
+  height = 13
 
   # Parse arguments
   if argz["fps"]:
@@ -133,10 +138,16 @@ if __name__ == "__main__" :
   if argz["local"]:
     local = True
 
+  if argz["width"]:
+    width = argz["width"]
+
+  if argz["height"]:
+    height = argz["height"] 
+
   # game choice options
   if argz["pygame"]:
 
-    tetris = tetris.Tetris(14,13);
+    tetris = tetris.Tetris(width, height)
     import pygame_wrapper, pygame
     wrapper = pygame_wrapper.Wrapper(tetris.buffer, tetris.boardX, tetris.boardY)
     game = Game(tetris,fps,local,address,port,wrapper)
@@ -161,29 +172,31 @@ if __name__ == "__main__" :
     game.loop()
 
   elif argz["file"]:
+    # Display contents from one of our files
     import pygame_wrapper, pygame, screensaver
 
-    crashburn = screensaver.FileToBuffer(14,13,argz["file"])
+    crashburn = screensaver.FileToBuffer(width, height, argz["file"])
     wrapper = pygame_wrapper.Wrapper(crashburn.buffer, crashburn.boardX, crashburn.boardY)
     game = Game(crashburn,fps,local,address,port,wrapper)
    
     game.loop()
 
   elif argz["message"]:
+    # Show messages
     import pygame_wrapper, pygame, message
 
     scrollspeed = 1
     if argz["scrollspeed"]:
       scrollspeed = argz["scrollspeed"]
 
-    messenger = message.MessageScroller(14, 13, "glyphs.txt", argz["message"],scrollspeed)
+    messenger = message.MessageWriter(width, height, "glyphs.txt", argz["message"],scrollspeed)
     wrapper = pygame_wrapper.Wrapper(messenger.buffer, messenger.boardX, messenger.boardY)
     game = Game(messenger,fps,local,address,port,wrapper)
 
     game.loop()
 
   else:
-    tetris = tetris.Tetris(14,13);
+    tetris = tetris.Tetris(width, height)
     game = Game(tetris,fps,local,address,port)
     game.loop()
 

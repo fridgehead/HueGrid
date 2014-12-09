@@ -11,7 +11,7 @@ class MessageWriter(BufferGame):
 
   ''' Write a message then repeat '''
 
-  def __init__(self, boardX = 14, boardY = 13, filename="glyphs.txt", message="hack the planet"):
+  def __init__(self, boardX = 14, boardY = 13, filename="glyphs.txt", message="hack the planet", steps_second="1"):
     super(MessageWriter,self).__init__(boardX,boardY)
 
 
@@ -19,6 +19,8 @@ class MessageWriter(BufferGame):
     self.currentFrame = 0
     self.message = message
     self.messagePos = 0
+    self._dframes = 0
+    self.scrollSpeed = steps_second
 
     data = loadFromFile(boardX, boardY, filename)
 
@@ -37,12 +39,16 @@ class MessageWriter(BufferGame):
 
   
   def frame(self,fps=2):
- 
-    self.copyBuffer(self.frameForKey(self.message[self.messagePos])["buffer"] )
+  
+    self._dframes += 1
+    if self._dframes >= self.scrollSpeed:
+      self._dframes = 0
 
-    self.messagePos += 1
-    if self.messagePos >= len(self.message):
-      self.messagePos = 0
+      self.copyBuffer(self.frameForKey(self.message[self.messagePos])["buffer"] )
+
+      self.messagePos += 1
+      if self.messagePos >= len(self.message):
+        self.messagePos = 0
 
 
 class MessageScroller(MessageWriter):
