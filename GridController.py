@@ -1,4 +1,5 @@
 from GridWorker import GridWorker
+from itertools import chain, izip
 
 '''
 Gridcontroller.py
@@ -20,7 +21,7 @@ class GridController:
         f1 = [[0,0,0] for a in range(0, width*height)]
         f2 = [[0,0,0] for a in range(0, width*height)]
         self.framebuffer = [f1, f2]
-        self.framePtr = 0
+        self.activeBuffer = 0
         self.calibrationMap = []
         self.stationBulbMap = {}
         self.workerList = {}
@@ -37,8 +38,13 @@ class GridController:
     def generateDifferenceList(self):
         ret = []
         for ind in range(self.width * self.height):
-            if self.framebuffer[self.framePtr][ind] != self.framebuffer[1-self.framePtr][ind]:
-                ret.append([ind, self.framebuffer[self.framePtr][ind] ])
+            if self.framebuffer[self.activeBuffer][ind] != self.framebuffer[1-self.activeBuffer][ind]:
+                ret.append([ind, self.framebuffer[self.activeBuffer][ind] ])
+        
+        #reverse the difference list. This will cause right hand LEDs to receive their updates before the left ones.
+        # this makes scrolling text suck less
+        ret = ret[::-1]
+
         return ret
 
     '''load the calibration map from given path
@@ -88,17 +94,39 @@ class GridController:
         if len(data) != self.width * self.height:
             print "Error!: new frame size incorrect",len(data)
             return
-        self.framebuffer[1-self.framePtr] = data[:]
-        self.framePtr = 1-self.framePtr
+        #write into non-displayed buffer
+        self.framebuffer[1-self.activeBuffer] = data[:]
+        #switch buffer pointer
+        self.activeBuffer = 1-self.activeBuffer
         self.flip()
 
     '''
     start sending the current buffer to the lights
     '''
     def flip(self):
-        print "sending frame %i" % (self.framePtr)
+        print "sending frame %i" % (self.activeBuffer)
         #generate a difference list
         diffList = self.generateDifferenceList()
+        updateList = {} #list of updates to make per worker thread
+        for w in self.workerList.keys():
+            updateList[w] = []
+        
+        #grab the changes from the difference list and for reach create a bulbid,value pair
+        for pair in diffList:
+            pixelIndex, value = pair
+            baseStation, bulbId = self.calibrationMap[pixelIndex]
+            updateList[baseStation] += [ [bulbId, value]]
+
+        #push each workers updatelist entry to the worker then mark the frame as done
+        for w in self.workerList.keys():
+            #do any pixel order manipulations here
+            #in this alternate between pairs of left and right leds 
+
+            self.workerList[w].addData( updateList[w] )
+            self.workerList[w].frameDone()
+
+        #old update method in case above is fucked up
+        """
         for pair in diffList:
             #look up the correct base station id for this bulb
             pixelIndex, value = pair
@@ -107,6 +135,7 @@ class GridController:
             worker.addData( [[bulbId , value]] )
         for w in self.workerList.keys():
             self.workerList[w].frameDone()
+        """    
 
 
 

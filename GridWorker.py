@@ -14,7 +14,10 @@ class GridWorker(Thread):
         self.testMode = testMode
         if testMode != True:
             self.bridge = Bridge(ip=stationIP, username="newdeveloper")
-       
+            command = {'hue' : 0, 'sat' : 255, 'bri' : 0, 'transitiontime' : 1} 
+            self.bridge.set_light(bulbId, command)
+        else:
+            print "bridge %s started, setting sat to 255" % (self.stationIP)
         self.transitionTime = 1
         self.running = True
         self.fastMode = False
@@ -83,11 +86,12 @@ class GridWorker(Thread):
         if self.queue.empty() == False:
             bulbId, value = self.queue.get(False)
             #send to base station
-            command = {'hue' : value[0], 'sat' : value[1], 'bri' : value[2], 'transitiontime' : self.transitionTime} 
+            command = {'hue' : value[0], 'bri' : value[2], 'transitiontime' : self.transitionTime} 
             if self.testMode != True:
                 self.bridge.set_light(bulbId, command)
             else :
-                print "command " + str(command)
+                print "station %s - bulb %i : colour %i" % (self.stationIP, bulbId, value[0])
+                #delay can probably drop to 0.2 now
             sleep(0.32)                
             self.queue.task_done()
     
