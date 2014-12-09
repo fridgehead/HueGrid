@@ -103,11 +103,29 @@ class BufferGame(object):
       for j in range(0,self.boardX):
         self.buffer[i][j] = 0
 
+  # A lot of the functions below are similar - maybe refactor?
+
   def copyBuffer(self, bbuffer):
     ''' Copy a frame into the actual buffer '''
     for i in range(0,self.boardY):
       for j in range(0,self.boardX):
         self.buffer[i][j] = bbuffer[i][j]
+
+  def copyLinearBuffer(self, bbuffer):
+    ''' Copy a linear buffer into the actual buffer '''
+    idx = 0
+    for i in range(0,self.boardY):
+      for j in range(0,self.boardX):
+        self.buffer[i][j] = bbuffer[idx]
+        idx += 1
+
+  def copyLinearBufferReversed(self, bbuffer):
+    ''' Copy a linear buffer into the actual buffer reversed columns '''
+    idx = 0
+    for i in reversed(range(0,self.boardY)):
+      for j in range(0,self.boardX):
+        self.buffer[i][j] = bbuffer[idx]
+        idx += 1
     
 
   def getLinearBuffer(self):
