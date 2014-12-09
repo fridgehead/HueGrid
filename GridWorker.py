@@ -86,13 +86,16 @@ class GridWorker(Thread):
         if self.queue.empty() == False:
             bulbId, value = self.queue.get(False)
             #send to base station
+            cmdWaitTime = 0.0 #how long to wait between commands, this depends on what is sent in the next line
             command = {'hue' : value[0], 'bri' : value[2], 'transitiontime' : self.transitionTime} 
+            cmdWaitTime += 0.32
+
             if self.testMode != True:
                 self.bridge.set_light(bulbId, command)
             else :
                 print "station %s - bulb %i : colour %i" % (self.stationIP, bulbId, value[0])
-                #delay can probably drop to 0.2 now
-            sleep(0.32)                
+
+            sleep(cmdWaitTime)                
             self.queue.task_done()
     
     def sendPointSymbols(self, lightList):

@@ -17,6 +17,7 @@ class GridServer:
     self.ipaddr = ipaddr
     self.port = port
     self.rate = rate # in seconds for updates
+    self.running = False
     
 
   def run_led(self):
