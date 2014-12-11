@@ -31,7 +31,7 @@ ColourContainer[] palette;
 
 
 int w = 14;
-int h = 12;
+int h = 13;
 int[][] pixels;
 int curColour = 0;
 
@@ -44,10 +44,8 @@ InetAddress IPAddress;
 
 void setup() {
   palette = new ColourContainer[8];
-  pal = new int[8];
   for (int i = 0; i < 8; i++){
-    pal[i] = 27 * i;
-    palette[i] = new ColourContainer(27*i, 255,255);
+    palette[i] = new ColourContainer(31*i, 255,255);
   }
   palette[0].v = 0;
   palette[7].s = 0;

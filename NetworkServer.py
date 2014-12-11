@@ -200,7 +200,7 @@ class GridServer:
 
     self.sock.setblocking(0)
 
-    self._g = GridController(self.bufferX, self.bufferY, testmode = True)
+    self._g = GridController(self.bufferX, self.bufferY, testmode = False)
 
     if fastmode:
       self._g.setFastMode()

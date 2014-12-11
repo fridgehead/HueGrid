@@ -84,7 +84,7 @@ class GridWorker(Thread):
         if self.queue.empty() == False:
             bulbId, value = self.queue.get(False)
             #send to base station
-            cmdWaitTime = 0.0 #how long to wait between commands, this depends on what is sent in the next line
+            cmdWaitTime = 0.3 #how long to wait between commands, this depends on what is sent in the next line
             command = {}
             if(value[0] != None):
                 command["hue"] = value[0]
