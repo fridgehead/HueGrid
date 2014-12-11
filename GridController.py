@@ -38,8 +38,18 @@ class GridController:
     def generateDifferenceList(self):
         ret = []
         for ind in range(self.width * self.height):
-            if self.framebuffer[self.activeBuffer][ind] != self.framebuffer[1-self.activeBuffer][ind]:
-                ret.append([ind, self.framebuffer[self.activeBuffer][ind] ])
+            curValue = self.framebuffer[self.activeBuffer][ind] 
+            prevValue = self.framebuffer[1-self.activeBuffer][ind]
+            if prevValue != curValue :
+                changedValue = curValue[:]
+
+                #now check to see if the brightness level has changed between frames
+                #if it hasnt then set the bri value to None
+                if curValue[2] == prevValue[2]:
+                    changedValue[2] = None
+                if curValue[1] == prevValue[1]:
+                    changedValue[1] = None 
+                ret.append([ind, changedValue])
         
         #reverse the difference list. This will cause right hand LEDs to receive their updates before the left ones.
         # this makes scrolling text suck less
@@ -114,6 +124,7 @@ class GridController:
         #grab the changes from the difference list and for reach create a bulbid,value pair
         for pair in diffList:
             pixelIndex, value = pair
+            print pixelIndex
             baseStation, bulbId = self.calibrationMap[pixelIndex]
             updateList[baseStation] += [ [bulbId, value]]
 

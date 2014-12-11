@@ -175,7 +175,7 @@ class GridServer:
 
     ind = ord(sentbyte)
     colour = palette [ind]
-
+    #drop the saturation value as its already set to 255 by the gridworker at startup
     return [colour, 255, bri[ind]]
 
 
@@ -211,7 +211,7 @@ class GridServer:
     recv_buffer_size = self.bufferY * self.bufferX
 
     # Blank out first
-    blankFrame = [ [40000,0,255] for a in range(recv_buffer_size) ]
+    blankFrame = [ [0,255,0] for a in range(recv_buffer_size) ]
     print "clearing to default"
     self._g.newFrameData(blankFrame)
 

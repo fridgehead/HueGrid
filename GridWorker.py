@@ -14,10 +14,8 @@ class GridWorker(Thread):
         self.testMode = testMode
         if testMode != True:
             self.bridge = Bridge(ip=stationIP, username="newdeveloper")
-            command = {'hue' : 0, 'sat' : 255, 'bri' : 0, 'transitiontime' : 1} 
-            self.bridge.set_light(bulbId, command)
         else:
-            print "bridge %s started, setting sat to 255" % (self.stationIP)
+            print "bridge %s started" % (self.stationIP)
         self.transitionTime = 1
         self.running = True
         self.fastMode = False
@@ -87,13 +85,24 @@ class GridWorker(Thread):
             bulbId, value = self.queue.get(False)
             #send to base station
             cmdWaitTime = 0.0 #how long to wait between commands, this depends on what is sent in the next line
-            command = {'hue' : value[0], 'bri' : value[2], 'transitiontime' : self.transitionTime} 
-            cmdWaitTime += 0.32
+            command = {}
+            if(value[0] != None):
+                command["hue"] = value[0]
+                cmdWaitTime += 0.1
+            if(value[1] != None):
+                command["sat"] = value[1]
+                cmdWaitTime += 0.1
+            if(value[2] != None):
+                command["bri"] = value[2]
+                cmdWaitTime += 0.1
+            command["transitiontime"] = self.transitionTime
+            #command = {'hue' : value[0], 'bri' : value[2], 'transitiontime' : self.transitionTime} 
+            #cmdWaitTime += 0.32
 
             if self.testMode != True:
                 self.bridge.set_light(bulbId, command)
             else :
-                print "station %s - bulb %i : colour %i" % (self.stationIP, bulbId, value[0])
+                print "station %s - bulb %i : %s" % (self.stationIP, bulbId, str(command))
 
             sleep(cmdWaitTime)                
             self.queue.task_done()
