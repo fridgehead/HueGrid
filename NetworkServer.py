@@ -172,11 +172,12 @@ class GridServer:
 
     palette = [40000, 7000, 14000, 21000, 28000, 35000, 42000, 49000]
     bri = [0,255,255,255,255,255,255,255]
+    sat = [255,255,255,255,255,255,255,0]
 
     ind = ord(sentbyte)
     colour = palette [ind]
     #drop the saturation value as its already set to 255 by the gridworker at startup
-    return [colour, 255, bri[ind]]
+    return [colour, sat[ind], bri[ind]]
 
 
   def run(self, fastmode):

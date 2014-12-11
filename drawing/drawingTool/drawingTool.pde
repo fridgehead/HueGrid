@@ -1,6 +1,18 @@
 import java.io.*; 
 import java.net.*;
 
+public class ColourContainer {
+  public int h = 0;
+  public int s = 0;
+  public int v = 0;
+  
+  public ColourContainer (int h, int s, int v){
+    this.h = h;
+    this.v = v;
+    this.s = s;
+  }
+}
+
 /*
 color[] pallette = {
   color(0, 0, 0), 
@@ -13,6 +25,9 @@ color[] pallette = {
   color(0, 255, 255)
 };*/
 int[] pal;
+
+ColourContainer[] palette;
+
 
 
 int w = 14;
@@ -28,10 +43,15 @@ InetAddress IPAddress;
 ;
 
 void setup() {
+  palette = new ColourContainer[8];
   pal = new int[8];
   for (int i = 0; i < 8; i++){
     pal[i] = 27 * i;
+    palette[i] = new ColourContainer(27*i, 255,255);
   }
+  palette[0].v = 0;
+  palette[7].s = 0;
+  
   
   size(800, 500);
   f = loadFont("Aharoni-Bold-48.vlw");
@@ -130,16 +150,16 @@ void draw() {
       if(pixels[x][y] == 0){
         sat = 0;
       }
-      fill(pal[pixels[x][y]], sat,sat);
+      ColourContainer c = palette[pixels[x][y]];
+      fill(c.h, c.s, c.v);
       rect(100 +  x * 30, 100 + y * 30, 30, 30);
     }
   }
-  int sat = 255;
-  if(curColour == 0){
-    sat = 0;
-  }
-  fill(pal[curColour], sat ,sat);  
+ 
   
+  ColourContainer c = palette[curColour];
+  fill(c.h, c.s, c.v);
+    
   
   rect(10,200,40,40);
   colorMode(RGB,255,255,255);
